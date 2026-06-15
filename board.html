@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>VCG 2027 · The AI-Native Broker</title>
+<style>
+/* ============================== FONTS ============================== */
+@font-face{font-family:'Space Grotesk';src:url('lib/fonts/space-grotesk-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Space Grotesk';src:url('lib/fonts/space-grotesk-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Inter';src:url('lib/fonts/inter-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter';src:url('lib/fonts/inter-600.woff2') format('woff2');font-weight:600;font-display:swap}
+
+/* ============================== TOKENS ============================== */
+:root{
+  --bg0:#04060d; --bg1:#080d1a;
+  --ink:#eaf1ff; --muted:#9fb2d6; --dim:#62759a;
+  --accent:#28e0d0; --accent2:#6ea8ff; --violet:#9b8cff; --amber:#ffc05a;
+  --up:#37e0a0; --down:#ff6b8a;
+  --glass:rgba(120,160,220,.055); --glass2:rgba(120,160,220,.09);
+  --stroke:rgba(150,185,235,.14); --stroke2:rgba(150,185,235,.24);
+  --disp:'Space Grotesk', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --body:'Inter', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --maxw:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(1200px 800px at 70% -10%, #0c1630 0%, var(--bg1) 38%, var(--bg0) 100%);
+  color:var(--ink); font-family:var(--body); overflow:hidden;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(40,224,208,.28)}
+
+/* ============================== ATMOSPHERE ============================== */
+#bg{position:fixed;inset:0;z-index:0;display:block}
+.blob{position:fixed;z-index:0;border-radius:50%;filter:blur(120px);opacity:.5;pointer-events:none}
+.blob.a{width:50vw;height:50vw;left:-12vw;top:-18vw;background:radial-gradient(circle,rgba(40,224,208,.22),transparent 60%)}
+.blob.b{width:46vw;height:46vw;right:-14vw;bottom:-20vw;background:radial-gradient(circle,rgba(110,168,255,.20),transparent 60%)}
+.scrim{position:fixed;inset:0;z-index:1;background:radial-gradient(80% 80% at 50% 50%, transparent 30%, rgba(4,6,13,.55) 100%);opacity:.4;pointer-events:none;transition:opacity .8s ease}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 280px 60px rgba(2,4,10,.85)}
+.grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ============================== CHROME / UI ============================== */
+.bar{position:fixed;left:0;top:0;height:3px;width:100%;z-index:40;background:rgba(255,255,255,.04)}
+.bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 16px rgba(40,224,208,.6);transition:width .6s cubic-bezier(.5,0,.2,1)}
+.topl{position:fixed;z-index:30;top:22px;left:30px;display:flex;align-items:center;gap:12px;font-family:var(--disp);font-weight:500;letter-spacing:.16em;font-size:11px;color:var(--muted);text-transform:uppercase}
+.topl .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.topr{position:fixed;z-index:30;top:20px;right:30px;font-family:var(--disp);font-size:12px;color:var(--dim);letter-spacing:.1em}
+.topr b{color:var(--ink);font-weight:700}
+.act{position:fixed;z-index:30;left:30px;bottom:26px;font-family:var(--disp);letter-spacing:.22em;font-size:10.5px;text-transform:uppercase;color:var(--dim)}
+.act b{color:var(--accent);font-weight:500}
+
+.rail{position:fixed;z-index:30;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px}
+.rail button{width:9px;height:9px;border-radius:50%;border:1px solid var(--stroke2);background:transparent;cursor:pointer;padding:0;transition:all .3s}
+.rail button:hover{border-color:var(--accent);transform:scale(1.3)}
+.rail button.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--accent);transform:scale(1.25)}
+
+.controls{position:fixed;z-index:30;right:28px;bottom:24px;display:flex;gap:8px}
+.controls button{width:38px;height:38px;border-radius:11px;border:1px solid var(--stroke);background:var(--glass);color:var(--muted);cursor:pointer;font-size:15px;backdrop-filter:blur(8px);transition:all .25s;display:flex;align-items:center;justify-content:center}
+.controls button:hover{color:var(--ink);border-color:var(--accent);background:var(--glass2)}
+.hint{position:fixed;z-index:30;left:50%;bottom:24px;transform:translateX(-50%);font-size:12px;color:var(--dim);letter-spacing:.08em;font-family:var(--disp);opacity:.9;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+
+/* ============================== DECK / SLIDES ============================== */
+.deck{position:fixed;inset:0;z-index:10}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:84px 7vw;opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .7s ease, transform .7s cubic-bezier(.5,0,.2,1), visibility .7s;overflow-y:auto}
+.slide.is-active{opacity:1;visibility:visible;transform:none}
+.slide.is-out-prev{transform:scale(1.02)}
+.slide.is-out-next{transform:scale(.97)}
+.wrap{width:100%;max-width:var(--maxw);margin:auto}
+.center{text-align:center}
+
+/* typography */
+.kicker{font-family:var(--disp);font-weight:500;letter-spacing:.32em;text-transform:uppercase;font-size:clamp(10px,1vw,13px);color:var(--accent);margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;line-height:.98;letter-spacing:-.02em;font-size:clamp(44px,8.4vw,118px)}
+h2.headline{font-family:var(--disp);font-weight:700;line-height:1.02;letter-spacing:-.02em;font-size:clamp(30px,4.7vw,68px)}
+.sub{font-size:clamp(16px,1.9vw,26px);color:var(--muted);line-height:1.5;margin-top:20px;font-weight:400;max-width:60ch}
+.center .sub{margin-left:auto;margin-right:auto}
+.lead{font-size:clamp(15px,1.5vw,20px);color:var(--muted);line-height:1.6}
+.grad{background:linear-gradient(105deg,#fff 0%,var(--accent) 48%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad2{background:linear-gradient(105deg,var(--accent),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.foot{margin-top:34px;font-family:var(--disp);font-size:clamp(12px,1.2vw,15px);color:var(--dim);letter-spacing:.04em}
+.foot b{color:var(--ink);font-weight:500}
+.caption{position:absolute;left:7vw;right:7vw;bottom:30px;text-align:center;font-size:13px;color:var(--dim);letter-spacing:.02em;font-style:italic}
+
+/* stat grid */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px}
+.stats.three{grid-template-columns:repeat(3,1fr)}
+.stat{padding:26px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(10px)}
+.stat .num{font-family:var(--disp);font-weight:700;font-size:clamp(32px,4.2vw,56px);line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.stat .num small{font-size:.5em;color:var(--accent);font-weight:500;margin-left:2px}
+.stat .lbl{margin-top:12px;font-size:13.5px;color:var(--muted);line-height:1.45}
+
+/* two columns */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:40px}
+.col{padding:30px 28px;border-radius:20px;background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(10px)}
+.col.now{background:rgba(255,107,138,.04);border-color:rgba(255,107,138,.18)}
+.col.fut{background:rgba(40,224,208,.05);border-color:rgba(40,224,208,.22)}
+.col h4{font-family:var(--disp);letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.col.now h4{color:var(--down)}.col.fut h4{color:var(--accent)}
+.col h4::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.col ul{list-style:none;display:flex;flex-direction:column;gap:13px}
+.col li{font-size:clamp(14px,1.35vw,17px);color:var(--muted);line-height:1.45;padding-left:20px;position:relative}
+.col li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:1px;background:currentColor;opacity:.6}
+.col.fut li{color:#cfe0f8}
+
+/* generic points */
+.points{list-style:none;margin-top:34px;display:flex;flex-direction:column;gap:18px;max-width:78ch}
+.points li{font-size:clamp(15px,1.6vw,21px);color:#cdddf4;line-height:1.5;padding-left:30px;position:relative}
+.points li::before{content:'';position:absolute;left:0;top:11px;width:13px;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.points li b{color:#fff;font-weight:600}
+.points li .hl{color:var(--accent);font-weight:600}
+
+/* tag / pills */
+.tag{display:inline-flex;align-items:center;gap:9px;margin-top:30px;padding:9px 16px;border-radius:100px;background:rgba(40,224,208,.1);border:1px solid rgba(40,224,208,.3);font-family:var(--disp);font-size:12.5px;letter-spacing:.06em;color:var(--accent)}
+.tag.live{background:rgba(55,224,160,.1);border-color:rgba(55,224,160,.35);color:var(--up)}
+.tag .pulse{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(55,224,160,.5)}70%{box-shadow:0 0 0 9px rgba(55,224,160,0)}100%{box-shadow:0 0 0 0 rgba(55,224,160,0)}}
+
+.pillrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.pill{padding:11px 20px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke);font-size:14.5px;color:var(--muted)}
+.pill b{color:var(--ink);font-family:var(--disp)}
+
+/* legend (cycle) */
+.legend{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:50px}
+.legitem{text-align:center;padding:16px 8px;border-radius:14px;background:var(--glass);border:1px solid var(--stroke)}
+.legitem .n{font-family:var(--disp);color:var(--accent);font-size:13px;font-weight:700}
+.legitem .t{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.3}
+
+/* timeline */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:42px}
+.tl{padding:28px 24px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);position:relative;overflow:hidden}
+.tl::before{content:'';position:absolute;left:0;top:0;height:3px;width:100%;background:linear-gradient(90deg,var(--accent),transparent)}
+.tl .when{font-family:var(--disp);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px}
+.tl ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.tl li{font-size:14px;color:var(--muted);line-height:1.4;padding-left:16px;position:relative}
+.tl li::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}
+
+/* quote / anecdote */
+.quote{margin-top:36px;padding:30px 34px;border-left:3px solid var(--accent);background:linear-gradient(90deg,rgba(40,224,208,.07),transparent);border-radius:0 16px 16px 0;font-size:clamp(16px,1.8vw,23px);line-height:1.5;color:#dbe8fb;font-style:italic;max-width:80ch}
+.quote b{font-style:normal;color:var(--accent)}
+
+/* four pillar */
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px}
+.pil{padding:30px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);text-align:center}
+.pil .pn{font-family:var(--disp);font-weight:700;font-size:clamp(22px,2.4vw,30px);color:var(--ink)}
+.pil .pd{margin-top:12px;font-size:13.5px;color:var(--muted);line-height:1.45}
+
+/* chart */
+.chartbox{margin-top:30px;display:grid;grid-template-columns:1.4fr 1fr;gap:30px;align-items:center}
+.chart{width:100%;height:auto}
+.chart .axis{stroke:var(--stroke2);stroke-width:1}
+.chart .gridln{stroke:rgba(150,185,235,.07);stroke-width:1}
+.chart .tick{fill:var(--dim);font-size:13px;font-family:var(--disp)}
+.csidelist{display:flex;flex-direction:column;gap:18px}
+.csideitem .cn{font-family:var(--disp);font-weight:700;font-size:clamp(26px,3vw,40px);color:var(--ink)}
+.csideitem .cn small{font-size:.5em;color:var(--accent)}
+.csideitem .cl{font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+/* reveal default state */
+.reveal{opacity:0}
+
+/* split layout for marquee */
+.split{display:grid;grid-template-columns:1fr;gap:18px}
+
+/* menu overlay */
+.menu{position:fixed;inset:0;z-index:60;background:rgba(4,6,13,.92);backdrop-filter:blur(16px);display:none;padding:8vh 8vw;overflow-y:auto}
+.menu.open{display:block}
+.menu h3{font-family:var(--disp);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-size:13px;margin-bottom:28px}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.menu-item{text-align:left;padding:16px 18px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke);color:var(--muted);cursor:pointer;transition:all .2s;font-family:var(--body);font-size:14px}
+.menu-item:hover{border-color:var(--accent);color:var(--ink);background:var(--glass2)}
+.menu-item .mi{font-family:var(--disp);color:var(--accent);font-size:12px;margin-right:10px}
+.menu-close{position:fixed;top:24px;right:30px;font-size:26px;color:var(--muted);background:none;border:none;cursor:pointer}
+
+/* notes panel */
+.notes{display:none}
+.notespanel{position:fixed;z-index:55;left:50%;bottom:78px;transform:translateX(-50%);width:min(820px,86vw);max-height:34vh;overflow-y:auto;padding:22px 26px;border-radius:16px;background:rgba(8,13,26,.96);border:1px solid var(--stroke2);backdrop-filter:blur(12px);font-size:14.5px;line-height:1.6;color:var(--muted);display:none}
+.notespanel.show{display:block}
+.notespanel b{color:var(--accent);font-family:var(--disp);letter-spacing:.1em;text-transform:uppercase;font-size:11px;display:block;margin-bottom:10px}
+
+@media (max-width:880px){
+  .stats,.stats.three,.cols,.timeline,.four{grid-template-columns:1fr 1fr}
+  .legend{grid-template-columns:repeat(4,1fr)}
+  .chartbox{grid-template-columns:1fr}
+  .menu-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="blob a"></div><div class="blob b"></div>
+<div class="scrim" id="scrim"></div>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<div class="bar"><i id="barfill"></i></div>
+<div class="topl"><span class="dot"></span> VCG Group · AI Committee</div>
+<div class="topr"><b id="cnum">01</b> / <span id="ctot">21</span></div>
+<div class="act">ACT <b id="actnum">I</b> · <span id="actname">The Setup</span></div>
+
+<nav class="rail" id="rail"></nav>
+
+<div class="controls">
+  <button id="btnPrev" title="Previous (←)">‹</button>
+  <button id="btnNotes" title="Speaker notes (N)">≡</button>
+  <button id="btnMenu" title="Sections (Esc)">⊞</button>
+  <button id="btnFull" title="Fullscreen (F)">⤢</button>
+  <button id="btnNext" title="Next (→)">›</button>
+</div>
+<div class="hint" id="hint">Press → or Space to begin</div>
+
+<div class="notespanel" id="notespanel"></div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 COVER -->
+  <section class="slide center" data-scene="hero" data-act="1" data-title="Cover">
+    <div class="wrap">
+      <div class="kicker reveal">The Future of AI at VCG Markets · 2027</div>
+      <h1 class="title reveal">The <span class="grad">AI-Native</span><br>Broker</h1>
+      <p class="sub reveal">Rewiring the entire VCG cycle — from first click to settled funds.</p>
+      <p class="foot reveal">Prepared by <b>Majd Al Kaid</b> · Managing Director · Chair, VCG Group AI Committee</p>
+    </div>
+    <aside class="notes">VCG operates across multiple regulated entities (Mauritius FSC, UAE SCA Cat-5, SVG, Iraq). This deck is my strategic view as chair of the group AI committee — where AI takes the whole business by 2027. It is a direction-setting deck, not an approval request.</aside>
+  </section>
+
+  <!-- 2 THESIS -->
+  <section class="slide" data-scene="calm" data-act="1" data-title="The thesis">
+    <div class="wrap">
+      <div class="kicker reveal">The Thesis</div>
+      <h2 class="headline reveal">AI stops being a tool.<br>It becomes the <span class="grad">operating layer</span>.</h2>
+      <p class="sub reveal">For most brokers, 2027 is when AI crosses from experiments into infrastructure. VCG doesn't start that race in 2027 — we're already running it.</p>
+      <div class="pillrow reveal">
+        <div class="pill"><b>Already in production</b> — not pilots</div>
+        <div class="pill"><b>Across the whole cycle</b> — not one team</div>
+        <div class="pill"><b>Governed by design</b> — not bolted on</div>
+      </div>
+    </div>
+    <aside class="notes">The single idea the board should leave with: AI is becoming *how VCG runs*, not a feature we ship. Everything after this slide is evidence and roadmap for that claim.</aside>
+  </section>
+
+  <!-- 3 INDUSTRY -->
+  <section class="slide" data-scene="calm" data-act="1" data-title="The industry">
+    <div class="wrap">
+      <div class="kicker reveal">Why Now · The Industry</div>
+      <h2 class="headline reveal">The wave isn't coming. <span class="grad2">It's here.</span></h2>
+      <div class="chartbox">
+        <svg class="chart reveal" id="chartAI" viewBox="0 0 760 380" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="csidelist">
+          <div class="csideitem reveal"><div class="cn">~<span data-count="70" data-dec="0">0</span><small>%</small></div><div class="cl">of US equity trading is already algorithmic.</div></div>
+          <div class="csideitem reveal"><div class="cn"><span data-count="36.6" data-dec="1">0</span><small>% CAGR</small></div><div class="cl">AI-in-trading market growth through 2030.</div></div>
+          <div class="csideitem reveal"><div class="cn">~<span data-count="90" data-dec="0">0</span><small>%</small></div><div class="cl">of unregulated prop firms expected to fail or merge — consolidation favours licensed brokers.</div></div>
+        </div>
+      </div>
+      <ul class="points reveal" style="margin-top:26px">
+        <li>Regulation is consolidating the field — MetaQuotes now requires prop firms to hold a regulated licence. <span class="hl">VCG is already there</span> (Mauritius FSC + UAE SCA Cat-5).</li>
+      </ul>
+    </div>
+    <aside class="notes">Source: industry research in the vault. The market curve is AI-in-trading: $142.3B (2023) → $826.7B (2030). The strategic point: the regulatory wall (MetaQuotes Feb-2024 rules, ESMA/NFA harmonisation) clears out the unlicensed competition and rewards firms like us. We're on the right side of the wall and ahead on the tech.</aside>
+  </section>
+
+  <!-- 4 PROOF -->
+  <section class="slide" data-scene="calm" data-act="1" data-title="We're already ahead">
+    <div class="wrap">
+      <div class="kicker reveal">Where We Stand</div>
+      <h2 class="headline reveal">We're not starting from zero.</h2>
+      <div class="stats">
+        <div class="stat reveal"><div class="num"><span data-count="4">0</span></div><div class="lbl">AI features <b>live</b> inside our trading platform — Q&A, anomaly narration, rule-drafting, an ops copilot.</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="792">0</span></div><div class="lbl">risk &amp; analytics measures already codified — <b>214 risk</b>, <b>75 fraud</b>.</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="48">0</span></div><div class="lbl">AI agents shipped <b>tested</b> production features across 32 + 16-agent sprints.</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="618">0</span><small>/618</small></div><div class="lbl">automated tests green at ship — AI built it, discipline verified it.</div></div>
+      </div>
+      <div class="tag reveal"><span class="pulse"></span> Production AI engine · agentic compliance running twice daily · a flow-driven hedging engine built &amp; tested</div>
+    </div>
+    <aside class="notes">This is the credibility slide. Every number here is shipped reality, not roadmap. The model tiering (Haiku→Sonnet→Opus), prompt caching, and an 80-scenario eval harness sit underneath — we engineer our AI, we don't just prompt it.</aside>
+  </section>
+
+  <!-- 5 CYCLE CENTERPIECE -->
+  <section class="slide center" data-scene="cycle" data-act="2" data-title="The operating cycle">
+    <div class="wrap">
+      <div class="kicker reveal">The Big Picture</div>
+      <h2 class="headline reveal">One business. <span class="grad">One continuous cycle.</span></h2>
+      <p class="sub reveal">AI rewires every stage — and sits at the centre of all of them.</p>
+      <div class="legend reveal">
+        <div class="legitem"><div class="n">01</div><div class="t">Acquisition</div></div>
+        <div class="legitem"><div class="n">02</div><div class="t">Onboarding &amp; Compliance</div></div>
+        <div class="legitem"><div class="n">03</div><div class="t">Funding &amp; Payments</div></div>
+        <div class="legitem"><div class="n">04</div><div class="t">Trading &amp; Execution</div></div>
+        <div class="legitem"><div class="n">05</div><div class="t">Risk &amp; Hedging</div></div>
+        <div class="legitem"><div class="n">06</div><div class="t">Retention &amp; Coaching</div></div>
+        <div class="legitem"><div class="n">07</div><div class="t">Finance &amp; Back-Office</div></div>
+      </div>
+    </div>
+    <aside class="notes">Let the ring breathe here. The metaphor: the cycle is the business; the glowing core is the AI brain (the engine, MCP, the knowledge vault) powering every stage. We'll now walk the ring station by station.</aside>
+  </section>
+
+  <!-- 6 ACQUISITION -->
+  <section class="slide" data-scene="station" data-station="0" data-act="2" data-title="Acquisition & Marketing">
+    <div class="wrap">
+      <div class="kicker reveal">Cycle · 01 — Acquisition &amp; Marketing</div>
+      <h2 class="headline reveal">Acquire smarter, defend the funnel.</h2>
+      <div class="cols">
+        <div class="col now reveal"><h4>Today</h4><ul>
+          <li>Campaigns built and tuned by hand, platform by platform.</li>
+          <li>Affiliate &amp; IB fraud caught late, after the payout.</li>
+          <li>Spend quality reported after the fact.</li>
+        </ul></div>
+        <div class="col fut reveal"><h4>2027</h4><ul>
+          <li>End-to-end campaign automation — brief → live → optimised.</li>
+          <li>AI affiliate-fraud scoring on every partner and cohort.</li>
+          <li>Real-time spend &amp; lead-quality intelligence.</li>
+        </ul></div>
+      </div>
+      <div class="tag live reveal"><span class="pulse"></span> 75 affiliate-fraud detection measures already live in VCG 360</div>
+    </div>
+    <aside class="notes">We already run automated affiliate-abuse detection twice daily (Claude Sonnet, 9-flag risk scoring → Teams). The 2027 step is closing the loop: agents that not only detect but run the campaigns end to end via MCP.</aside>
+  </section>
+
+  <!-- 7 ONBOARDING -->
+  <section class="slide" data-scene="station" data-station="1" data-act="2" data-title="Onboarding & Compliance">
+    <div class="wrap">
+      <div class="kicker reveal">Cycle · 02 — Onboarding &amp; Compliance</div>
+      <h2 class="headline reveal">Compliance that scales without bodies.</h2>
+      <div class="cols">
+        <div class="col now reveal"><h4>Today</h4><ul>
+          <li>KYC and document review largely manual.</li>
+          <li>AML / sanctions / PEP coverage has gaps.</li>
+          <li>Client-facing legal docs reviewed by hand — 56 open questions outstanding.</li>
+        </ul></div>
+        <div class="col fut reveal"><h4>2027</h4><ul>
+          <li>Agentic KYC across multi-day flows, with human approval gates.</li>
+          <li>Continuous AML / sanctions / PEP monitoring.</li>
+          <li>Document-intelligence drafting and reviewing policy.</li>
+        </ul></div>
+      </div>
+      <div class="tag reveal"><span class="pulse"></span> The agentic-compliance pattern is already proven in production</div>
+    </div>
+    <aside class="notes">Onboarding is where AI labour shows up most clearly — long-running agents with human sign-off at each gate. The abuse-detection pipeline is the template; we extend it to KYC/AML and the legal-document suite that's currently 100% manual.</aside>
+  </section>
+
+  <!-- 8 TRADING -->
+  <section class="slide" data-scene="station" data-station="3" data-act="2" data-title="Trading & Execution">
+    <div class="wrap">
+      <div class="kicker reveal">Cycle · 04 — Trading, Execution &amp; Liquidity</div>
+      <h2 class="headline reveal">Sharper execution, smarter book.</h2>
+      <div class="cols">
+        <div class="col now reveal"><h4>Today</h4><ul>
+          <li>Routing and B-book decisions lean on rules of thumb.</li>
+          <li>Toxicity assessed with classical models.</li>
+          <li>Execution quality reviewed periodically.</li>
+        </ul></div>
+        <div class="col fut reveal"><h4>2027</h4><ul>
+          <li>Smart routing tuned continuously by the data.</li>
+          <li>B-book toxicity classification upgraded to LLM-tier inference.</li>
+          <li>Live execution &amp; slippage analytics on every fill.</li>
+        </ul></div>
+      </div>
+      <div class="tag reveal"><span class="pulse"></span> Our B-book playbook is already ML-native — ready to upgrade</div>
+    </div>
+    <aside class="notes">The B-book is underwriting. We already model toxicity with gradient-boosted trees + sequence models; the 2027 move is real-time, LLM-tier inference on the order flow, feeding automated hedge triggers and kill-switches.</aside>
+  </section>
+
+  <!-- 9 RISK (CROWN) -->
+  <section class="slide" data-scene="station" data-station="4" data-act="2" data-title="Risk & Hedging — the crown">
+    <div class="wrap">
+      <div class="kicker reveal">Cycle · 05 — Risk &amp; Hedging · <span style="color:var(--up)">the crown</span></div>
+      <h2 class="headline reveal">The risk desk is <span class="grad">already AI-native.</span></h2>
+      <ul class="points reveal">
+        <li><b>Live now:</b> a 24/7 anomaly narrator flags &gt;2σ PnL swings and &gt;40% concentration — in plain English, to the desk.</li>
+        <li><b>Live now:</b> ask the book questions in natural language; an Ops Copilot <span class="hl">proposes</span> actions into a human approval queue.</li>
+        <li><b>Built:</b> a flow-driven hedging engine that trades against aggregate client exposure.</li>
+        <li><b>2027:</b> real-time VaR / Expected Shortfall, autonomous monitoring, human-gated action.</li>
+      </ul>
+      <div class="tag live reveal"><span class="pulse"></span> Most advanced station on the ring — operational today</div>
+    </div>
+    <aside class="notes">This is our strongest hand. The anomaly narrator runs on a 30-second tick in production. The Ops Copilot is "write-class" but proposal-gated — AI never executes a trade directly. That governance is the point, and it's the bridge to the next era of the desk.</aside>
+  </section>
+
+  <!-- 10 RETENTION -->
+  <section class="slide" data-scene="station" data-station="5" data-act="2" data-title="Retention & Coaching">
+    <div class="wrap">
+      <div class="kicker reveal">Cycle · 06 — Retention &amp; Client Experience</div>
+      <h2 class="headline reveal">Keep clients by making them better.</h2>
+      <div class="cols">
+        <div class="col now reveal"><h4>Today</h4><ul>
+          <li>One-size support; reactive service.</li>
+          <li>Churn noticed after it has happened.</li>
+          <li>Analytics locked behind the desk.</li>
+        </ul></div>
+        <div class="col fut reveal"><h4>2027</h4><ul>
+          <li>AI coaching that helps traders improve — and stay.</li>
+          <li>Natural-language analytics placed in clients' hands.</li>
+          <li>Churn prediction + behavioural nudges, before they leave.</li>
+        </ul></div>
+      </div>
+      <div class="tag reveal"><span class="pulse"></span> The same "Ask" engine that powers our desk can power the client's</div>
+    </div>
+    <aside class="notes">Retention is where internal capability turns outward — the bridge to the external-offerings pillar. AI coaching is a genuine differentiator for a retail CFD audience and a reason to stay funded and active.</aside>
+  </section>
+
+  <!-- 11 FINANCE / ERP MARQUEE -->
+  <section class="slide" data-scene="station" data-station="6" data-act="2" data-title="Finance & the VCG ERP">
+    <div class="wrap">
+      <div class="kicker reveal">Cycle · 07 — Finance &amp; Back-Office · <span style="color:var(--accent)">flagship build</span></div>
+      <h2 class="headline reveal">The ERP we're building is the thesis, <span class="grad">made real.</span></h2>
+      <ul class="points reveal">
+        <li>One system replacing Odoo across <b>every entity</b> — Mauritius · SVG · UAE SCA Cat-5 · Iraq.</li>
+        <li>Closed-box AI agents <b>extract invoices &amp; contracts</b>, monitor IFRS changes (42–45 standards) with human review windows.</li>
+        <li>Agents run the <b>three-way reconciliation</b> — CRM ↔ banks ↔ PSPs — that eats ~70% of the team's time today.</li>
+        <li class="hl">AI writes the app; the app doesn't depend on AI at runtime; AI narrates — it never touches the numbers.</li>
+      </ul>
+      <div class="tag reveal"><span class="pulse"></span> In active design — built with Claude · Next.js · Postgres</div>
+    </div>
+    <aside class="notes">This is the marquee. The ERP is the clearest single proof of the whole strategy: AI-built, multi-entity, governed by the closed-box model, and aimed squarely at the most painful manual work in finance. New role flagged: a dedicated Risk &amp; AI Manager to run the long-horizon agents.</aside>
+  </section>
+
+  <!-- 12 ENABLER -->
+  <section class="slide" data-scene="calm" data-act="2" data-title="The enabler — engineering & IT/Security">
+    <div class="wrap">
+      <div class="kicker reveal">The Enabler — Engineering &amp; IT/Security</div>
+      <h2 class="headline reveal">We don't just use AI. <span class="grad">We build with it.</span></h2>
+      <ul class="points reveal">
+        <li>Production features shipped by fleets of <b>32 + 16 parallel AI agents</b> — fully tested before merge.</li>
+        <li>Observability and incident-triage agents on the roadmap, watching the platform around the clock.</li>
+        <li><b>IT &amp; Security is the gate:</b> AI can read across our systems today — writing to money and trading systems is earned, behind hardening.</li>
+      </ul>
+      <div class="tag reveal"><span class="pulse"></span> An AI-augmented engineering model already validated in production</div>
+    </div>
+    <aside class="notes">The future-of-work story, made concrete. We already ship real, tested software via agent fleets. Security is deliberately the brake: read-access is broad, write-access is gated — that sequencing is a feature, not a limitation.</aside>
+  </section>
+
+  <!-- 13 MCP -->
+  <section class="slide" data-scene="core" data-act="2" data-title="MCP — the leverage layer">
+    <div class="wrap">
+      <div class="kicker reveal">The How</div>
+      <h2 class="headline reveal">MCP is how we <span class="grad2">connect everything.</span></h2>
+      <p class="sub reveal">The Model Context Protocol turns our disconnected systems into one fabric — that agents can read, reason over, and act across.</p>
+      <ul class="points reveal">
+        <li><b>Automate marketing campaigns end-to-end</b> — from brief to live to optimised, across platforms.</li>
+        <li><b>Finish automating the small stuff</b> — the spreadsheets and Excel sheets running around the business get absorbed.</li>
+        <li><b>Stop the platform-hopping</b> — the team stops shuttling data between systems by hand.</li>
+        <li class="hl">The systems that don't talk to each other — finally talk.</li>
+      </ul>
+    </div>
+    <aside class="notes">MCP is the practical answer to VCG's oldest problem: "our systems don't integrate." It's the connective tissue that lets one agent operate across CRM, MT5, PSPs, BI, and the back-office. This is where a lot of the day-to-day toil quietly disappears.</aside>
+  </section>
+
+  <!-- 14 THE LOOP (Satya-inspired) -->
+  <section class="slide" data-scene="core" data-act="2" data-title="The real prize is the loop">
+    <div class="wrap">
+      <div class="kicker reveal">The Bigger Idea</div>
+      <h2 class="headline reveal">The real prize isn't the model.<br>It's the <span class="grad">loop.</span></h2>
+      <p class="sub reveal">Models are becoming commodities. The advantage is the proprietary learning loop you build on top of them — and own.</p>
+      <ul class="points reveal">
+        <li><b>Human capital</b> — our people's judgment, relationships and pattern recognition. <b>Token capital</b> — the AI capability we build and own. They <span class="hl">compound together.</span></li>
+        <li>You can offload a task — even a job — but you can never offload your <b>learning</b>. The firm that compounds learning across people and AI wins.</li>
+        <li>Architect it so we can <span class="hl">swap the model and keep the veteran</span> — our IP lives in our knowledge and data, not in someone else's weights.</li>
+      </ul>
+    </div>
+    <p class="caption reveal">Framing inspired by Satya Nadella's “human capital × token capital” thesis, June 2026.</p>
+    <aside class="notes">The strategic reframe. The board takeaway: we are not betting on a model — we are building the compounding loop that becomes VCG's owned IP. This sets up the Knowledge Vault as the place that loop lives. Human capital becomes MORE valuable as token capital grows; people set the direction, AI compounds it.</aside>
+  </section>
+
+  <!-- 15 VAULT VISION -->
+  <section class="slide center" data-scene="core" data-act="2" data-title="The Knowledge Vault — living brain">
+    <div class="wrap">
+      <div class="kicker reveal">The Foundation · Coming Next</div>
+      <h2 class="headline reveal">The VCG Knowledge Vault —<br>a <span class="grad">living brain.</span></h2>
+      <p class="sub reveal">One sovereign layer, universally connected to every system, API and MCP we run — the institutional memory our people and agents read from, and write back to.</p>
+      <div class="pillrow reveal" style="justify-content:center">
+        <div class="pill"><b>100 users · one brain</b><br>query everything through a single, permission-aware layer</div>
+        <div class="pill"><b>On-prem nerve-centre</b><br>sensitive documents analysed locally — never leaving the building</div>
+        <div class="pill"><b>It compounds</b><br>every query and correction makes it sharper</div>
+      </div>
+    </div>
+    <p class="caption reveal">Our steering ball — the thing that keeps the whole firm pointed the same way.</p>
+    <aside class="notes">Keep this evocative — the full architecture is the next deck. The three promises: one permission-aware layer for ~100 users; on-prem privacy for sensitive docs; a system that compounds with use. "Steering ball" is Majd's phrase — the firm's living compass.</aside>
+  </section>
+
+  <!-- 16 VAULT PRACTICAL PATH -->
+  <section class="slide" data-scene="calm" data-act="2" data-title="From knowledge layer to VCG's own model">
+    <div class="wrap">
+      <div class="kicker reveal">The Practical Path</div>
+      <h2 class="headline reveal">From a knowledge layer<br>to <span class="grad">VCG's own model.</span></h2>
+      <div class="four">
+        <div class="pil reveal"><div class="pn">Now</div><div class="pd">A unified knowledge layer (RAG) over our Obsidian vault + every system, via MCP. A local model for sensitive docs.</div></div>
+        <div class="pil reveal"><div class="pn">Next</div><div class="pd">Capture the traces. Private evals on the outcomes that matter to VCG — not public benchmarks.</div></div>
+        <div class="pil reveal"><div class="pn">Then</div><div class="pd">Fine-tune a <b style="color:var(--accent)">VCG SLM</b> — the “company veteran,” running on our own hardware.</div></div>
+        <div class="pil reveal"><div class="pn">Ours</div><div class="pd">Swap the generalist model anytime. The veteran knowledge stays ours — sovereign IP.</div></div>
+      </div>
+      <p class="foot reveal">Full architecture &amp; the hardware to run it — <b>the dedicated deck.</b></p>
+    </div>
+    <aside class="notes">The honest maturity ladder. RAG-first delivers most of the value fast; the fine-tuned VCG SLM is phase two, once we have the traces and private evals. We do NOT "train an LLM" on day one. Hybrid: Mac Studio nerve-centre (index + local model + MCP server) for sovereignty, Claude API for heavy non-sensitive reasoning. Model-sovereignty throughout: swap the base model, keep the institutional knowledge.</aside>
+  </section>
+
+  <!-- 15 EXTERNAL -->
+  <section class="slide" data-scene="calm" data-act="3" data-title="From capability to product">
+    <div class="wrap">
+      <div class="kicker reveal">External · Client Offerings</div>
+      <h2 class="headline reveal">What we run inside<br>becomes what we <span class="grad">sell outside.</span></h2>
+      <ul class="points reveal">
+        <li>VCG is <b>customer-zero</b> of an AI-native analytics &amp; coaching platform — built with our partner Sovra GmbH and proven on our own book first.</li>
+        <li>Institutional-grade analytics and <b>AI coaching</b>, packaged for retail traders.</li>
+        <li>A differentiation competitors can't copy quickly — because we live on it before we sell it.</li>
+      </ul>
+      <div class="tag reveal"><span class="pulse"></span> Internal proving ground → external product → new revenue</div>
+    </div>
+    <aside class="notes">Framing matters: the platform (TapeOps) is a Sovra GmbH product; VCG is its first and premium client and proving ground — not the owner. The strategic point for VCG: our internal AI investment de-risks and seeds a sellable product line.</aside>
+  </section>
+
+  <!-- 16 REVENUE -->
+  <section class="slide" data-scene="calm" data-act="3" data-title="New revenue surfaces">
+    <div class="wrap">
+      <div class="kicker reveal">New Revenue</div>
+      <h2 class="headline reveal">New surfaces open up.</h2>
+      <div class="chartbox">
+        <svg class="chart reveal" id="chartProp" viewBox="0 0 760 380" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="csidelist">
+          <div class="csideitem reveal"><div class="cn">$<span data-count="24.6" data-dec="1">0</span><small>B</small></div><div class="cl">prop-trading market by 2035 (from $7.1B in 2026 · 10.9% CAGR) — an adjacency our back-office is 60–70% ready for.</div></div>
+          <div class="csideitem reveal"><div class="cn">Premium tiers</div><div class="cl">analytics &amp; AI coaching as paid client features.</div></div>
+          <div class="csideitem reveal"><div class="cn">A licensed moat</div><div class="cl">new entrants need 6+ months and ~$75K to even start.</div></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">Prop trading is the obvious adjacency — the MT5 back-office already has most of the plumbing, and the regulatory consolidation pushes unlicensed competitors out. AI products (coaching, analytics) layer on top as recurring revenue.</aside>
+  </section>
+
+  <!-- 17 GOVERNANCE -->
+  <section class="slide" data-scene="calm" data-act="4" data-title="How we do AI responsibly">
+    <div class="wrap">
+      <div class="kicker reveal">How We Do It Responsibly</div>
+      <h2 class="headline reveal">Trust is the moat. <span class="grad">We engineered it in.</span></h2>
+      <ul class="points reveal">
+        <li><b>Closed-box AI:</b> agents never roam the open web — only VCG's own data plus a whitelist of standards and regulator sources.</li>
+        <li><b>Human-in-the-loop on every write:</b> AI proposes; people approve.</li>
+        <li><b>AI narrates — it never touches the numbers.</b></li>
+      </ul>
+      <div class="quote reveal">Asked for a bank routing code, the model <b>invented one</b> — then retracted it the moment we asked for a source. That single moment shaped our entire architecture.</div>
+    </div>
+    <aside class="notes">This is the slide that makes the board comfortable with everything else. The hallucination anecdote (the Zand Bank WPS code) is real and we use it deliberately: it's *why* we built the closed box and the never-touch-the-numbers rule — learned from a real daily-report incident where an LLM fabricated client figures.</aside>
+  </section>
+
+  <!-- 18 BRIDGE -->
+  <section class="slide" data-scene="calm" data-act="4" data-title="The honest bridge 2026→2027">
+    <div class="wrap">
+      <div class="kicker reveal">The Honest Bridge · 2026 → 2027</div>
+      <h2 class="headline reveal">What's real today — and what we fund to get there.</h2>
+      <div class="cols">
+        <div class="col fut reveal"><h4>Real today</h4><ul>
+          <li>AI engine — 4 features live in production.</li>
+          <li>24/7 anomaly narrator on a 30-second tick.</li>
+          <li>Agentic abuse detection, twice daily.</li>
+          <li>Hedging engine built &amp; tested; 48-agent delivery proven.</li>
+        </ul></div>
+        <div class="col now reveal"><h4>2026 → 2027 work</h4><ul>
+          <li>Harden write-access behind security review.</li>
+          <li>Move infra off personal cards → company billing + SLAs.</li>
+          <li>Provision per-tenant cloud properly.</li>
+          <li>Ship the ERP and the integration layer.</li>
+        </ul></div>
+      </div>
+      <p class="lead reveal" style="margin-top:26px">Maturity is naming the gaps — and funding the <b style="color:var(--accent)">plumbing</b>, not just the models.</p>
+    </div>
+    <aside class="notes">Showing the gaps builds credibility. The honest risks: ClickHouse currently on a personal card with no SLA, connector write-ops not yet hardened, a security review with open critical findings before external brokers go live. A serious AI roadmap funds the infrastructure, not only the headline AI.</aside>
+  </section>
+
+  <!-- 19 ROADMAP -->
+  <section class="slide" data-scene="calm" data-act="4" data-title="The 2027 roadmap">
+    <div class="wrap">
+      <div class="kicker reveal">The Path</div>
+      <h2 class="headline reveal">The 2027 roadmap.</h2>
+      <div class="timeline">
+        <div class="tl reveal"><div class="when">Now · H2 2026</div><ul>
+          <li>ERP build underway</li>
+          <li>MCP integration layer</li>
+          <li>Security hardening for writes</li>
+          <li>Infra on company billing + SLA</li>
+        </ul></div>
+        <div class="tl reveal"><div class="when">Near · Early 2027</div><ul>
+          <li>AI-native risk desk</li>
+          <li>Agentic compliance (KYC / AML)</li>
+          <li>Client AI-coaching pilot</li>
+          <li>Knowledge Vault live</li>
+        </ul></div>
+        <div class="tl reveal"><div class="when">2027</div><ul>
+          <li>AI across the full cycle</li>
+          <li>External AI products</li>
+          <li>Autonomous — but gated — operations</li>
+        </ul></div>
+      </div>
+      <p class="lead reveal" style="margin-top:28px">Priority hire: a dedicated <b style="color:var(--accent)">Risk &amp; AI Manager</b> + supporting roles to run long-horizon agents.</p>
+    </div>
+    <aside class="notes">This is my direction as committee chair, not a request for a vote. The phasing is deliberate: plumbing and governance first, autonomy last. The one resource ask the board should register is the dedicated AI ownership role.</aside>
+  </section>
+
+  <!-- 20 OUTCOME -->
+  <section class="slide center" data-scene="cycle" data-act="4" data-title="What this makes VCG">
+    <div class="wrap">
+      <div class="kicker reveal">The Outcome</div>
+      <h2 class="headline reveal">The <span class="grad">AI-native</span> CFD broker.</h2>
+      <div class="four">
+        <div class="pil reveal"><div class="pn">Leaner</div><div class="pd">automation absorbs the manual toil.</div></div>
+        <div class="pil reveal"><div class="pn">Faster</div><div class="pd">agents ship and decide in minutes.</div></div>
+        <div class="pil reveal"><div class="pn">Safer</div><div class="pd">governed, gated, fully auditable.</div></div>
+        <div class="pil reveal"><div class="pn">Ahead</div><div class="pd">products &amp; speed competitors lack.</div></div>
+      </div>
+    </div>
+    <aside class="notes">The synthesis. Four words to remember. We get leaner, faster, and safer at the same time — which is unusual, and only possible because the governance is built in from the start.</aside>
+  </section>
+
+  <!-- 21 CLOSE -->
+  <section class="slide center" data-scene="hero" data-act="4" data-title="The direction we're taking">
+    <div class="wrap">
+      <div class="kicker reveal">2027</div>
+      <h1 class="title reveal">This is the <span class="grad">direction</span><br>we're taking.</h1>
+      <p class="sub reveal">AI isn't a project at VCG. It's becoming how the whole business runs.</p>
+      <p class="foot reveal">Next · <b>The VCG Knowledge Vault</b> — the brain behind all of it.</p>
+    </div>
+    <aside class="notes">Close with conviction — this is direction-setting. Then hand straight into the teaser for the Knowledge Vault deck so the momentum carries into the next session.</aside>
+  </section>
+
+</main>
+
+<div class="menu" id="menu">
+  <button class="menu-close" id="menuClose">×</button>
+  <h3>Sections</h3>
+  <div class="menu-grid" id="menuGrid"></div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/gsap.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var HAS_G = typeof window.gsap !== 'undefined';
+  var HAS_T = typeof window.THREE !== 'undefined';
+
+  /* ============================ SLIDES / NAV ============================ */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var idx = 0, busy = false;
+  var ACTS = {1:'The Setup', 2:'Rewiring the Cycle', 3:'External & Revenue', 4:'The Path'};
+  var ROM = {1:'I',2:'II',3:'III',4:'IV'};
+
+  document.getElementById('ctot').textContent = slides.length;
+
+  // build rail + menu
+  var rail = document.getElementById('rail'), menuGrid = document.getElementById('menuGrid');
+  slides.forEach(function(s, i){
+    var b = document.createElement('button');
+    b.title = s.dataset.title || ('Slide '+(i+1));
+    b.addEventListener('click', function(){ go(i); });
+    rail.appendChild(b);
+
+    var m = document.createElement('button');
+    m.className = 'menu-item';
+    m.innerHTML = '<span class="mi">'+String(i+1).padStart(2,'0')+'</span>'+(s.dataset.title||'');
+    m.addEventListener('click', function(){ go(i); closeMenu(); });
+    menuGrid.appendChild(m);
+  });
+  var railBtns = Array.prototype.slice.call(rail.children);
+
+  function setReveals(slide, animate){
+    var els = slide.querySelectorAll('.reveal');
+    if(!HAS_G){ els.forEach(function(e){ e.style.opacity = 1; }); return; }
+    if(animate){
+      gsap.killTweensOf(els);
+      gsap.fromTo(els, {opacity:0, y:26}, {opacity:1, y:0, duration:.85, stagger:.085, ease:'power3.out', delay:.12});
+    } else {
+      gsap.set(els, {opacity:0, y:26});
+    }
+  }
+
+  function countUp(slide){
+    var nums = slide.querySelectorAll('[data-count]');
+    nums.forEach(function(el){
+      var to = parseFloat(el.getAttribute('data-count'));
+      var dec = parseInt(el.getAttribute('data-dec')||'0',10);
+      if(!HAS_G){ el.textContent = to.toFixed(dec); return; }
+      var obj = {v:0};
+      gsap.to(obj, {v:to, duration:1.5, ease:'power2.out', delay:.35, onUpdate:function(){
+        el.textContent = obj.v.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+      }});
+    });
+  }
+
+  function go(n, dir){
+    if(busy) return;
+    idx = Math.max(0, Math.min(slides.length-1, n));
+    busy = true; setTimeout(function(){ busy=false; }, 420);
+
+    slides.forEach(function(s,i){
+      s.classList.remove('is-active','is-out-prev','is-out-next');
+      if(i===idx){ s.classList.add('is-active'); }
+      else if(i<idx){ s.classList.add('is-out-prev'); }
+      else { s.classList.add('is-out-next'); }
+      if(i!==idx) setReveals(s,false);
+    });
+
+    var cur = slides[idx];
+    setReveals(cur, true);
+    countUp(cur);
+    drawCharts(cur);
+
+    // chrome
+    railBtns.forEach(function(b,i){ b.classList.toggle('on', i===idx); });
+    document.getElementById('cnum').textContent = String(idx+1).padStart(2,'0');
+    document.getElementById('barfill').style.width = ((idx)/(slides.length-1)*100)+'%';
+    var act = cur.dataset.act || '1';
+    document.getElementById('actnum').textContent = ROM[act]||'I';
+    document.getElementById('actname').textContent = ACTS[act]||'';
+    document.getElementById('hint').style.opacity = (idx===0)?'0.9':'0';
+
+    // notes
+    var note = cur.querySelector('.notes');
+    notesText = note ? note.innerHTML : '';
+    renderNotes();
+
+    // scene
+    updateScene(cur);
+  }
+
+  function next(){ go(idx+1, 1); }
+  function prev(){ go(idx-1, -1); }
+
+  /* ============================ NOTES ============================ */
+  var notesOn = false, notesText = '';
+  var notespanel = document.getElementById('notespanel');
+  function renderNotes(){
+    if(notesOn && notesText){ notespanel.classList.add('show'); notespanel.innerHTML = '<b>Speaker notes</b>'+notesText; }
+    else { notespanel.classList.remove('show'); }
+  }
+  document.getElementById('btnNotes').addEventListener('click', function(){ notesOn=!notesOn; renderNotes(); });
+
+  /* ============================ MENU ============================ */
+  var menu = document.getElementById('menu');
+  function openMenu(){ menu.classList.add('open'); }
+  function closeMenu(){ menu.classList.remove('open'); }
+  document.getElementById('btnMenu').addEventListener('click', function(){ menu.classList.contains('open')?closeMenu():openMenu(); });
+  document.getElementById('menuClose').addEventListener('click', closeMenu);
+
+  /* ============================ CONTROLS ============================ */
+  document.getElementById('btnNext').addEventListener('click', next);
+  document.getElementById('btnPrev').addEventListener('click', prev);
+  document.getElementById('btnFull').addEventListener('click', function(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen&&document.exitFullscreen(); }
+  });
+
+  window.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); next(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(slides.length-1); }
+    else if(e.key==='Escape'){ menu.classList.contains('open')?closeMenu():openMenu(); }
+    else if(e.key==='n'||e.key==='N'){ notesOn=!notesOn; renderNotes(); }
+    else if(e.key==='f'||e.key==='F'){ document.getElementById('btnFull').click(); }
+  });
+
+  // wheel (throttled) + touch
+  var wlock=false;
+  window.addEventListener('wheel', function(e){
+    if(menu.classList.contains('open'))return;
+    if(Math.abs(e.deltaY)<24||wlock)return;
+    wlock=true; setTimeout(function(){wlock=false;},750);
+    if(e.deltaY>0)next(); else prev();
+  }, {passive:true});
+  var tsx=0,tsy=0;
+  window.addEventListener('touchstart', function(e){ tsx=e.touches[0].clientX; tsy=e.touches[0].clientY; }, {passive:true});
+  window.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tsx, dy=e.changedTouches[0].clientY-tsy;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); }
+    else if(Math.abs(dy)>60){ dy<0?next():prev(); }
+  }, {passive:true});
+
+  /* ============================ CHARTS ============================ */
+  var drawn = {};
+  function drawCharts(slide){
+    var ai = slide.querySelector('#chartAI');
+    if(ai) buildArea(ai, [[2023,142],[2025,290],[2027,520],[2030,827]], '$', 'B', 900);
+    var pp = slide.querySelector('#chartProp');
+    if(pp) buildArea(pp, [[2026,7.1],[2029,12],[2032,18],[2035,24.6]], '$', 'B', 24.6);
+  }
+  function buildArea(svg, data, pre, suf, ymaxHint){
+    var W=760,H=380, padL=64, padR=24, padT=28, padB=46;
+    var xs=data.map(function(d){return d[0];}), ys=data.map(function(d){return d[1];});
+    var x0=Math.min.apply(null,xs), x1=Math.max.apply(null,xs);
+    var y1=Math.max(ymaxHint||Math.max.apply(null,ys), Math.max.apply(null,ys));
+    function px(x){ return padL + (x-x0)/(x1-x0)*(W-padL-padR); }
+    function py(y){ return H-padB - (y/y1)*(H-padT-padB); }
+    var ns='http://www.w3.org/2000/svg';
+    svg.innerHTML='';
+    // defs gradient
+    var defs=document.createElementNS(ns,'defs');
+    defs.innerHTML='<linearGradient id="g'+svg.id+'" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0%" stop-color="#28e0d0" stop-opacity="0.42"/>'+
+      '<stop offset="100%" stop-color="#28e0d0" stop-opacity="0"/></linearGradient>';
+    svg.appendChild(defs);
+    // gridlines + y ticks
+    var steps=4;
+    for(var i=0;i<=steps;i++){
+      var yv=y1*i/steps, yy=py(yv);
+      var ln=document.createElementNS(ns,'line');
+      ln.setAttribute('class','gridln'); ln.setAttribute('x1',padL); ln.setAttribute('x2',W-padR); ln.setAttribute('y1',yy); ln.setAttribute('y2',yy);
+      svg.appendChild(ln);
+      var tk=document.createElementNS(ns,'text');
+      tk.setAttribute('class','tick'); tk.setAttribute('x',padL-12); tk.setAttribute('y',yy+4); tk.setAttribute('text-anchor','end');
+      tk.textContent=pre+Math.round(yv)+suf;
+      svg.appendChild(tk);
+    }
+    // x ticks
+    data.forEach(function(d){
+      var t=document.createElementNS(ns,'text');
+      t.setAttribute('class','tick'); t.setAttribute('x',px(d[0])); t.setAttribute('y',H-padB+24); t.setAttribute('text-anchor','middle');
+      t.textContent=d[0]; svg.appendChild(t);
+    });
+    // line path (smooth)
+    var dstr='', astr='';
+    data.forEach(function(d,i){
+      var X=px(d[0]),Y=py(d[1]);
+      if(i===0){ dstr='M'+X+','+Y; astr='M'+X+','+(H-padB)+' L'+X+','+Y; }
+      else{
+        var pX=px(data[i-1][0]),pY=py(data[i-1][1]); var cx=(pX+X)/2;
+        dstr+=' C'+cx+','+pY+' '+cx+','+Y+' '+X+','+Y;
+        astr+=' C'+cx+','+pY+' '+cx+','+Y+' '+X+','+Y;
+      }
+    });
+    astr+=' L'+px(data[data.length-1][0])+','+(H-padB)+' Z';
+    var area=document.createElementNS(ns,'path');
+    area.setAttribute('d',astr); area.setAttribute('fill','url(#g'+svg.id+')'); area.setAttribute('opacity','0');
+    svg.appendChild(area);
+    var line=document.createElementNS(ns,'path');
+    line.setAttribute('d',dstr); line.setAttribute('fill','none'); line.setAttribute('stroke','#28e0d0'); line.setAttribute('stroke-width','3'); line.setAttribute('stroke-linecap','round');
+    svg.appendChild(line);
+    // end dot
+    var last=data[data.length-1];
+    var dot=document.createElementNS(ns,'circle');
+    dot.setAttribute('cx',px(last[0])); dot.setAttribute('cy',py(last[1])); dot.setAttribute('r','6'); dot.setAttribute('fill','#28e0d0');
+    dot.setAttribute('opacity','0'); svg.appendChild(dot);
+    // animate
+    if(HAS_G){
+      var len=line.getTotalLength();
+      line.style.strokeDasharray=len; line.style.strokeDashoffset=len;
+      gsap.to(line,{strokeDashoffset:0,duration:1.8,ease:'power2.out',delay:.25});
+      gsap.to(area,{opacity:1,duration:1.2,delay:1.1});
+      gsap.to(dot,{opacity:1,duration:.4,delay:1.7});
+      gsap.fromTo(dot,{attr:{r:6}},{attr:{r:9},duration:1,repeat:-1,yoyo:true,ease:'sine.inOut',delay:1.9});
+    } else { area.setAttribute('opacity','1'); dot.setAttribute('opacity','1'); }
+  }
+
+  /* ============================ THREE.JS SCENE ============================ */
+  var scene, cam, rend, ringGroup, core, coreGlow, nodes=[], flow, flowPos, flowAng, stars;
+  var STN=7, R=5.0;
+  var mouse={x:0,y:0}, camZ=15, camTarget={x:0,y:0,z:15};
+  var ringTargetZ=0, focusIndex=null, coreBoost=0;
+
+  function glowTex(color){
+    var c=document.createElement('canvas'); c.width=c.height=128; var x=c.getContext('2d');
+    var g=x.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(.25,color+',0.85)');
+    g.addColorStop(1,color+',0)');
+    x.fillStyle=g; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(c);
+  }
+  function dotTex(){
+    var c=document.createElement('canvas'); c.width=c.height=64; var x=c.getContext('2d');
+    var g=x.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.4,'rgba(160,240,235,.8)'); g.addColorStop(1,'rgba(160,240,235,0)');
+    x.fillStyle=g; x.fillRect(0,0,64,64); return new THREE.CanvasTexture(c);
+  }
+
+  function initScene(){
+    if(!HAS_T) return;
+    var canvas=document.getElementById('bg');
+    rend=new THREE.WebGLRenderer({canvas:canvas, alpha:true, antialias:true});
+    rend.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    rend.setSize(window.innerWidth, window.innerHeight);
+    scene=new THREE.Scene();
+    cam=new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, .1, 200);
+    cam.position.set(0,0,15);
+
+    ringGroup=new THREE.Group();
+    ringGroup.rotation.x=-0.62;
+    scene.add(ringGroup);
+
+    // ring circle line
+    var pts=[], seg=160;
+    for(var i=0;i<=seg;i++){ var a=i/seg*Math.PI*2; pts.push(new THREE.Vector3(Math.cos(a)*R, Math.sin(a)*R, 0)); }
+    var rg=new THREE.BufferGeometry().setFromPoints(pts);
+    var ringLine=new THREE.Line(rg, new THREE.LineBasicMaterial({color:0x3a6f8c, transparent:true, opacity:.4}));
+    ringGroup.add(ringLine);
+
+    // station nodes
+    var gtex=glowTex('rgba(60,230,215');
+    for(var s=0;s<STN;s++){
+      var ang=-Math.PI/2 + s/STN*Math.PI*2;
+      var pos=new THREE.Vector3(Math.cos(ang)*R, Math.sin(ang)*R, 0);
+      var mesh=new THREE.Mesh(new THREE.SphereGeometry(.16,24,24), new THREE.MeshBasicMaterial({color:0xbafff7}));
+      mesh.position.copy(pos); ringGroup.add(mesh);
+      var spr=new THREE.Sprite(new THREE.SpriteMaterial({map:gtex, color:0x35e6d2, transparent:true, opacity:.85, blending:THREE.AdditiveBlending, depthWrite:false}));
+      spr.scale.set(1.5,1.5,1); spr.position.copy(pos); ringGroup.add(spr);
+      nodes.push({mesh:mesh, glow:spr, ang:ang, cur:1, tgt:1});
+    }
+
+    // flow particles around ring
+    var FN=240; flowPos=new Float32Array(FN*3); flowAng=new Float32Array(FN);
+    for(var f=0;f<FN;f++){ flowAng[f]=Math.random()*Math.PI*2; var rr=R+(Math.random()-.5)*.25;
+      flowPos[f*3]=Math.cos(flowAng[f])*rr; flowPos[f*3+1]=Math.sin(flowAng[f])*rr; flowPos[f*3+2]=(Math.random()-.5)*.2; }
+    var fg=new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.BufferAttribute(flowPos,3));
+    flow=new THREE.Points(fg, new THREE.PointsMaterial({size:.13, map:dotTex(), color:0x7af0e6, transparent:true, opacity:.9, blending:THREE.AdditiveBlending, depthWrite:false}));
+    ringGroup.add(flow);
+
+    // core (AI brain)
+    core=new THREE.Mesh(new THREE.IcosahedronGeometry(.55,1), new THREE.MeshBasicMaterial({color:0x9fe9ff, transparent:true, opacity:.92, wireframe:true}));
+    scene.add(core);
+    coreGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(120,200,255'), color:0x6ea8ff, transparent:true, opacity:.7, blending:THREE.AdditiveBlending, depthWrite:false}));
+    coreGlow.scale.set(4,4,1); scene.add(coreGlow);
+
+    // starfield
+    var SN=1400, sp=new Float32Array(SN*3);
+    for(var i=0;i<SN;i++){ var rad=18+Math.random()*40, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+      sp[i*3]=rad*Math.sin(ph)*Math.cos(th); sp[i*3+1]=rad*Math.sin(ph)*Math.sin(th)*.6; sp[i*3+2]=rad*Math.cos(ph)-20; }
+    var sg=new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(sp,3));
+    stars=new THREE.Points(sg, new THREE.PointsMaterial({size:.09, map:dotTex(), color:0x9fb2d6, transparent:true, opacity:.55, blending:THREE.AdditiveBlending, depthWrite:false}));
+    scene.add(stars);
+
+    window.addEventListener('mousemove', function(e){ mouse.x=(e.clientX/window.innerWidth)*2-1; mouse.y=(e.clientY/window.innerHeight)*2-1; });
+    window.addEventListener('resize', onResize);
+    animate();
+  }
+
+  function onResize(){
+    if(!rend) return;
+    cam.aspect=window.innerWidth/window.innerHeight; cam.updateProjectionMatrix();
+    rend.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  var t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    if(!rend) return;
+    t+=0.0045;
+    ringGroup.rotation.z += 0.0012;
+
+    // ease ring focus rotation
+    if(focusIndex!==null){
+      var node=nodes[focusIndex];
+      // bring node to front-bottom (closest to camera with the -x tilt) => target local angle -PI/2
+      var want = (-Math.PI/2) - node.ang;
+      // shortest path relative to current
+      var cz=ringGroup.rotation.z % (Math.PI*2);
+      var diff=((want - cz + Math.PI*3)%(Math.PI*2))-Math.PI;
+      ringGroup.rotation.z += diff*0.04;
+    }
+
+    // node highlight ease
+    nodes.forEach(function(n,i){
+      n.tgt = (focusIndex===null)?1 : (i===focusIndex?2.1:0.5);
+      n.cur += (n.tgt-n.cur)*0.08;
+      n.glow.scale.set(1.5*n.cur,1.5*n.cur,1);
+      n.glow.material.opacity = 0.35+0.5*Math.min(n.cur,1.4);
+      n.mesh.scale.setScalar(0.7+0.5*n.cur);
+    });
+
+    // flow particles travel
+    for(var f=0;f<flowAng.length;f++){
+      flowAng[f]+=0.006;
+      var rr=R+Math.sin(flowAng[f]*3+f)*0.05;
+      flowPos[f*3]=Math.cos(flowAng[f])*rr; flowPos[f*3+1]=Math.sin(flowAng[f])*rr;
+    }
+    flow.geometry.attributes.position.needsUpdate=true;
+
+    // core pulse
+    var pulse=1+Math.sin(t*2.2)*0.12 + coreBoost*0.5;
+    core.scale.setScalar(pulse);
+    core.rotation.y+=0.006; core.rotation.x+=0.003;
+    coreGlow.scale.set(4*(1+coreBoost*0.7)+Math.sin(t*2)*0.2, 4*(1+coreBoost*0.7)+Math.sin(t*2)*0.2,1);
+    coreGlow.material.opacity = 0.45+0.25*Math.sin(t*2)+coreBoost*0.3;
+
+    stars.rotation.y+=0.0003;
+
+    // camera parallax + target z
+    camTarget.x += (mouse.x*1.3 - camTarget.x)*0.05;
+    camTarget.y += (-mouse.y*0.9 - camTarget.y)*0.05;
+    camTarget.z += (camZ - camTarget.z)*0.05;
+    cam.position.set(camTarget.x, camTarget.y, camTarget.z);
+    cam.lookAt(0,0,0);
+
+    rend.render(scene, cam);
+  }
+
+  // scene reaction to slides
+  function updateScene(slide){
+    var mode=slide.dataset.scene||'calm';
+    var scrim=document.getElementById('scrim');
+    var sc=0.4;
+    if(mode==='hero'){ sc=0.12; camZ=15; focusIndex=null; coreBoost=0.2; }
+    else if(mode==='cycle'){ sc=0.18; camZ=14; focusIndex=null; coreBoost=0.15; }
+    else if(mode==='station'){ sc=0.46; camZ=12.5; focusIndex=parseInt(slide.dataset.station,10); coreBoost=0; }
+    else if(mode==='core'){ sc=0.42; camZ=15.5; focusIndex=null; coreBoost=1; }
+    else { sc=0.62; camZ=16; focusIndex=null; coreBoost=0.05; } // calm
+    if(HAS_G){ gsap.to(scrim,{opacity:sc,duration:.9,ease:'power2.out'}); }
+    else { scrim.style.opacity=sc; }
+  }
+
+  /* ============================ BOOT ============================ */
+  if(HAS_T){ try{ initScene(); }catch(err){ console.warn('scene init failed', err); } }
+  // start
+  slides[0].classList.add('is-active');
+  go(0);
+})();
+</script>
+</body>
+</html>

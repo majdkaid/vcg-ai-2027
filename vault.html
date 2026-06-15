@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>VCG Knowledge Vault · The Nerve System of the Firm</title>
+<style>
+@font-face{font-family:'Space Grotesk';src:url('lib/fonts/space-grotesk-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Space Grotesk';src:url('lib/fonts/space-grotesk-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Inter';src:url('lib/fonts/inter-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter';src:url('lib/fonts/inter-600.woff2') format('woff2');font-weight:600;font-display:swap}
+
+:root{
+  --bg0:#04060d; --bg1:#080d1a;
+  --ink:#eaf1ff; --muted:#9fb2d6; --dim:#62759a;
+  --accent:#28e0d0; --accent2:#6ea8ff; --violet:#9b8cff; --amber:#ffc05a;
+  --up:#37e0a0; --down:#ff6b8a;
+  --glass:rgba(120,160,220,.055); --glass2:rgba(120,160,220,.09);
+  --stroke:rgba(150,185,235,.14); --stroke2:rgba(150,185,235,.24);
+  --disp:'Space Grotesk', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --body:'Inter', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --maxw:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:radial-gradient(1200px 800px at 70% -10%, #0c1630 0%, var(--bg1) 38%, var(--bg0) 100%);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::selection{background:rgba(110,168,255,.28)}
+
+#bg{position:fixed;inset:0;z-index:0;display:block}
+.blob{position:fixed;z-index:0;border-radius:50%;filter:blur(120px);opacity:.5;pointer-events:none}
+.blob.a{width:50vw;height:50vw;left:-12vw;top:-18vw;background:radial-gradient(circle,rgba(110,168,255,.22),transparent 60%)}
+.blob.b{width:46vw;height:46vw;right:-14vw;bottom:-20vw;background:radial-gradient(circle,rgba(155,140,255,.20),transparent 60%)}
+.scrim{position:fixed;inset:0;z-index:1;background:radial-gradient(80% 80% at 50% 50%, transparent 30%, rgba(4,6,13,.55) 100%);opacity:.4;pointer-events:none;transition:opacity .8s ease}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 280px 60px rgba(2,4,10,.85)}
+.grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.bar{position:fixed;left:0;top:0;height:3px;width:100%;z-index:40;background:rgba(255,255,255,.04)}
+.bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--violet));box-shadow:0 0 16px rgba(110,168,255,.6);transition:width .6s cubic-bezier(.5,0,.2,1)}
+.topl{position:fixed;z-index:30;top:22px;left:30px;display:flex;align-items:center;gap:12px;font-family:var(--disp);font-weight:500;letter-spacing:.16em;font-size:11px;color:var(--muted);text-transform:uppercase}
+.topl .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 12px var(--accent2)}
+.topr{position:fixed;z-index:30;top:20px;right:30px;font-family:var(--disp);font-size:12px;color:var(--dim);letter-spacing:.1em}
+.topr b{color:var(--ink);font-weight:700}
+.act{position:fixed;z-index:30;left:30px;bottom:26px;font-family:var(--disp);letter-spacing:.22em;font-size:10.5px;text-transform:uppercase;color:var(--dim)}
+.act b{color:var(--accent2);font-weight:500}
+
+.rail{position:fixed;z-index:30;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px}
+.rail button{width:9px;height:9px;border-radius:50%;border:1px solid var(--stroke2);background:transparent;cursor:pointer;padding:0;transition:all .3s}
+.rail button:hover{border-color:var(--accent2);transform:scale(1.3)}
+.rail button.on{background:var(--accent2);border-color:var(--accent2);box-shadow:0 0 10px var(--accent2);transform:scale(1.25)}
+
+.controls{position:fixed;z-index:30;right:28px;bottom:24px;display:flex;gap:8px}
+.controls button{width:38px;height:38px;border-radius:11px;border:1px solid var(--stroke);background:var(--glass);color:var(--muted);cursor:pointer;font-size:15px;backdrop-filter:blur(8px);transition:all .25s;display:flex;align-items:center;justify-content:center}
+.controls button:hover{color:var(--ink);border-color:var(--accent2);background:var(--glass2)}
+.hint{position:fixed;z-index:30;left:50%;bottom:24px;transform:translateX(-50%);font-size:12px;color:var(--dim);letter-spacing:.08em;font-family:var(--disp);opacity:.9;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+
+.deck{position:fixed;inset:0;z-index:10}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:84px 7vw;opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .7s ease, transform .7s cubic-bezier(.5,0,.2,1), visibility .7s;overflow-y:auto}
+.slide.is-active{opacity:1;visibility:visible;transform:none}
+.wrap{width:100%;max-width:var(--maxw);margin:auto}
+.center{text-align:center}
+
+.kicker{font-family:var(--disp);font-weight:500;letter-spacing:.32em;text-transform:uppercase;font-size:clamp(10px,1vw,13px);color:var(--accent2);margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;line-height:.98;letter-spacing:-.02em;font-size:clamp(44px,8.4vw,118px)}
+h2.headline{font-family:var(--disp);font-weight:700;line-height:1.02;letter-spacing:-.02em;font-size:clamp(30px,4.7vw,68px)}
+.sub{font-size:clamp(16px,1.9vw,26px);color:var(--muted);line-height:1.5;margin-top:20px;font-weight:400;max-width:62ch}
+.center .sub{margin-left:auto;margin-right:auto}
+.lead{font-size:clamp(15px,1.5vw,20px);color:var(--muted);line-height:1.6}
+.grad{background:linear-gradient(105deg,#fff 0%,var(--accent2) 48%,var(--violet) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad2{background:linear-gradient(105deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.foot{margin-top:34px;font-family:var(--disp);font-size:clamp(12px,1.2vw,15px);color:var(--dim);letter-spacing:.04em}
+.foot b{color:var(--ink);font-weight:500}
+.caption{position:absolute;left:7vw;right:7vw;bottom:30px;text-align:center;font-size:13px;color:var(--dim);letter-spacing:.02em;font-style:italic}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px}
+.stats.three{grid-template-columns:repeat(3,1fr)}
+.stat{padding:26px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(10px)}
+.stat .num{font-family:var(--disp);font-weight:700;font-size:clamp(32px,4.2vw,56px);line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.stat .num small{font-size:.5em;color:var(--accent2);font-weight:500;margin-left:2px}
+.stat .lbl{margin-top:12px;font-size:13.5px;color:var(--muted);line-height:1.45}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:40px}
+.col{padding:30px 28px;border-radius:20px;background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(10px)}
+.col.now{background:rgba(255,107,138,.04);border-color:rgba(255,107,138,.18)}
+.col.fut{background:rgba(110,168,255,.05);border-color:rgba(110,168,255,.22)}
+.col h4{font-family:var(--disp);letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.col.now h4{color:var(--down)}.col.fut h4{color:var(--accent2)}
+.col h4::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.col ul{list-style:none;display:flex;flex-direction:column;gap:13px}
+.col li{font-size:clamp(14px,1.35vw,17px);color:var(--muted);line-height:1.45;padding-left:20px;position:relative}
+.col li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:1px;background:currentColor;opacity:.6}
+.col.fut li{color:#cfe0f8}
+
+.points{list-style:none;margin-top:34px;display:flex;flex-direction:column;gap:18px;max-width:80ch}
+.points li{font-size:clamp(15px,1.6vw,21px);color:#cdddf4;line-height:1.5;padding-left:30px;position:relative}
+.points li::before{content:'';position:absolute;left:0;top:11px;width:13px;height:2px;background:linear-gradient(90deg,var(--accent2),transparent)}
+.points li b{color:#fff;font-weight:600}
+.points li .hl{color:var(--accent2);font-weight:600}
+
+.tag{display:inline-flex;align-items:center;gap:9px;margin-top:30px;padding:9px 16px;border-radius:100px;background:rgba(110,168,255,.1);border:1px solid rgba(110,168,255,.3);font-family:var(--disp);font-size:12.5px;letter-spacing:.06em;color:var(--accent2)}
+.tag.live{background:rgba(55,224,160,.1);border-color:rgba(55,224,160,.35);color:var(--up)}
+.tag .pulse{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(110,168,255,.5)}70%{box-shadow:0 0 0 9px rgba(110,168,255,0)}100%{box-shadow:0 0 0 0 rgba(110,168,255,0)}}
+
+.pillrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.pill{padding:14px 20px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke);font-size:14.5px;color:var(--muted);line-height:1.4}
+.pill b{color:var(--ink);font-family:var(--disp)}
+
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px}
+.pil{padding:28px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);text-align:left}
+.pil .pn{font-family:var(--disp);font-weight:700;font-size:clamp(18px,2vw,24px);color:var(--accent2)}
+.pil .pd{margin-top:12px;font-size:13.5px;color:var(--muted);line-height:1.45}
+.pil .pd b{color:var(--ink)}
+
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:42px}
+.tl{padding:26px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);position:relative;overflow:hidden}
+.tl::before{content:'';position:absolute;left:0;top:0;height:3px;width:100%;background:linear-gradient(90deg,var(--accent2),transparent)}
+.tl .when{font-family:var(--disp);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);margin-bottom:14px}
+.tl ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.tl li{font-size:13.5px;color:var(--muted);line-height:1.4;padding-left:15px;position:relative}
+.tl li::before{content:'›';position:absolute;left:0;color:var(--accent2);font-weight:700}
+
+.quote{margin-top:36px;padding:30px 34px;border-left:3px solid var(--accent2);background:linear-gradient(90deg,rgba(110,168,255,.07),transparent);border-radius:0 16px 16px 0;font-size:clamp(16px,1.8vw,23px);line-height:1.5;color:#dbe8fb;font-style:italic;max-width:80ch}
+.quote b{font-style:normal;color:var(--accent2)}
+
+/* day-with cards */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px}
+.card{padding:26px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);text-align:left}
+.card .ct{font-family:var(--disp);font-weight:700;font-size:18px;color:var(--accent2);margin-bottom:12px}
+.card .cd{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* architecture diagram */
+.arch{margin-top:38px;display:flex;flex-direction:column;align-items:center;gap:9px}
+.arch-row{width:100%;max-width:820px;padding:18px 26px;border-radius:14px;background:var(--glass);border:1px solid var(--stroke);text-align:center;backdrop-filter:blur(8px)}
+.arch-row .arch-tag{font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink)}
+.arch-row .arch-sub{display:block;font-size:13px;color:var(--muted);margin-top:5px}
+.arch-row.accent{border-color:rgba(110,168,255,.45);background:rgba(110,168,255,.08)}
+.arch-row.accent .arch-tag{color:var(--accent2)}
+.arch-row.brain{border-color:rgba(155,140,255,.5);background:linear-gradient(90deg,rgba(155,140,255,.1),rgba(110,168,255,.08))}
+.arch-row.brain .arch-tag{color:var(--violet)}
+.arch-flow{color:var(--dim);font-size:14px;line-height:1;font-family:var(--disp);letter-spacing:.1em}
+.arch-cols{width:100%;max-width:820px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
+.arch-box{padding:16px 16px;border-radius:13px;background:var(--glass);border:1px dashed var(--stroke2);text-align:center;font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--ink)}
+.arch-box small{display:block;font-family:var(--body);font-weight:400;color:var(--muted);font-size:12px;margin-top:7px;line-height:1.4}
+
+.reveal{opacity:0}
+
+.menu{position:fixed;inset:0;z-index:60;background:rgba(4,6,13,.92);backdrop-filter:blur(16px);display:none;padding:8vh 8vw;overflow-y:auto}
+.menu.open{display:block}
+.menu h3{font-family:var(--disp);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-size:13px;margin-bottom:28px}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.menu-item{text-align:left;padding:16px 18px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke);color:var(--muted);cursor:pointer;transition:all .2s;font-family:var(--body);font-size:14px}
+.menu-item:hover{border-color:var(--accent2);color:var(--ink);background:var(--glass2)}
+.menu-item .mi{font-family:var(--disp);color:var(--accent2);font-size:12px;margin-right:10px}
+.menu-close{position:fixed;top:24px;right:30px;font-size:26px;color:var(--muted);background:none;border:none;cursor:pointer}
+
+.notes{display:none}
+.notespanel{position:fixed;z-index:55;left:50%;bottom:78px;transform:translateX(-50%);width:min(820px,86vw);max-height:34vh;overflow-y:auto;padding:22px 26px;border-radius:16px;background:rgba(8,13,26,.96);border:1px solid var(--stroke2);backdrop-filter:blur(12px);font-size:14.5px;line-height:1.6;color:var(--muted);display:none}
+.notespanel.show{display:block}
+.notespanel b{color:var(--accent2);font-family:var(--disp);letter-spacing:.1em;text-transform:uppercase;font-size:11px;display:block;margin-bottom:10px}
+
+@media (max-width:880px){
+  .stats,.stats.three,.cols,.timeline,.four,.cards{grid-template-columns:1fr 1fr}
+  .arch-cols{grid-template-columns:1fr}
+  .menu-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="blob a"></div><div class="blob b"></div>
+<div class="scrim" id="scrim"></div>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<div class="bar"><i id="barfill"></i></div>
+<div class="topl"><span class="dot"></span> VCG Group · AI Committee</div>
+<div class="topr"><b id="cnum">01</b> / <span id="ctot">20</span></div>
+<div class="act">ACT <b id="actnum">I</b> · <span id="actname">The Vision</span></div>
+
+<nav class="rail" id="rail"></nav>
+
+<div class="controls">
+  <button id="btnPrev" title="Previous (←)">‹</button>
+  <button id="btnNotes" title="Speaker notes (N)">≡</button>
+  <button id="btnMenu" title="Sections (Esc)">⊞</button>
+  <button id="btnFull" title="Fullscreen (F)">⤢</button>
+  <button id="btnNext" title="Next (→)">›</button>
+</div>
+<div class="hint" id="hint">Press → or Space to begin</div>
+
+<div class="notespanel" id="notespanel"></div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 COVER -->
+  <section class="slide center" data-scene="hero" data-act="1" data-title="Cover">
+    <div class="wrap">
+      <div class="kicker reveal">VCG Group · AI Committee · 2027</div>
+      <h1 class="title reveal">The <span class="grad">Knowledge Vault</span></h1>
+      <p class="sub reveal">The nerve system of the firm — one sovereign brain that every person and every agent learns from, and feeds.</p>
+      <p class="foot reveal">Majd Al Kaid · Managing Director · Chair, VCG Group AI Committee</p>
+    </div>
+    <aside class="notes">This is the flagship. The master deck ended on a teaser for this; we open here. The single idea: the Vault is VCG's owned, compounding IP — the thing that makes everything else (the cycle, the agents, the products) get smarter over time.</aside>
+  </section>
+
+  <!-- 2 CAPITAL / THE LOOP -->
+  <section class="slide" data-scene="core" data-act="1" data-title="The loop is the IP">
+    <div class="wrap">
+      <div class="kicker reveal">Why This Matters Most</div>
+      <h2 class="headline reveal">The model is rented.<br>The <span class="grad">loop is owned.</span></h2>
+      <p class="sub reveal">Every firm now builds two kinds of capital: <b style="color:var(--ink)">human capital</b> — our people's judgment and relationships — and <b style="color:var(--ink)">token capital</b> — the AI capability we build and own. The Vault is where they compound.</p>
+      <ul class="points reveal">
+        <li>Models will keep getting better and cheaper — and everyone gets the same ones. <span class="hl">No edge there.</span></li>
+        <li>The edge is the proprietary learning loop on top: our knowledge, our traces, our judgment, encoded and compounding.</li>
+        <li>You can offload a task — never your <b>learning</b>. The Vault is how VCG never offloads its learning.</li>
+      </ul>
+    </div>
+    <p class="caption reveal">Framing inspired by Satya Nadella's “human capital × token capital” thesis, June 2026.</p>
+    <aside class="notes">Carry-through from the master deck, now the centrepiece. The board takeaway: spending on models is renting; spending on the Vault is building an asset that appreciates. This reframes the whole investment conversation.</aside>
+  </section>
+
+  <!-- 3 WHAT IT IS -->
+  <section class="slide center" data-scene="core" data-act="1" data-title="What it is, in one line">
+    <div class="wrap">
+      <div class="kicker reveal">In One Line</div>
+      <h2 class="headline reveal">One brain. Connected to <span class="grad">everything.</span><br>Read by all. Fed by all.</h2>
+      <p class="sub reveal">A single, sovereign knowledge layer — wired into every system, API and MCP we run — that our people query for their everyday work and our agents are steered by. And it gets sharper every time it's used.</p>
+    </div>
+    <aside class="notes">Keep this slide clean and slow. It's the elevator pitch. "Read by all, fed by all" is the two-way loop — humans and agents both consume and contribute. Everything after this explains how.</aside>
+  </section>
+
+  <!-- 4 PROBLEM -->
+  <section class="slide" data-scene="calm" data-act="1" data-title="The problem today">
+    <div class="wrap">
+      <div class="kicker reveal">The Problem Today</div>
+      <h2 class="headline reveal">Our knowledge is scattered — and it walks out the door.</h2>
+      <ul class="points reveal">
+        <li>Expertise lives in <b>people's heads</b>, scattered chats, and folders no one can find.</li>
+        <li>Systems <b>don't talk</b> — the same numbers re-keyed across CRM, MT5, BI and spreadsheets.</li>
+        <li>Policies and playbooks sit in <b>PDFs nobody reads</b> until something breaks.</li>
+        <li>When someone leaves, <span class="hl">their judgment leaves with them.</span></li>
+      </ul>
+    </div>
+    <aside class="notes">This is the pain the board feels viscerally. Don't dwell — name it sharply, because the Vault is the direct answer to each line. The "walks out the door" point is the emotional anchor: institutional memory is currently un-owned.</aside>
+  </section>
+
+  <!-- 5 THE SHIFT -->
+  <section class="slide" data-scene="calm" data-act="1" data-title="The shift">
+    <div class="wrap">
+      <div class="kicker reveal">The Shift</div>
+      <h2 class="headline reveal">From static documents<br>to a <span class="grad">living brain.</span></h2>
+      <div class="cols">
+        <div class="col now reveal"><h4>Documents</h4><ul>
+          <li>Written once, decay quietly.</li>
+          <li>Searched by keyword, if at all.</li>
+          <li>Disconnected from live data.</li>
+          <li>Read by humans only.</li>
+        </ul></div>
+        <div class="col fut reveal"><h4>A living brain</h4><ul>
+          <li>Updated continuously by use.</li>
+          <li>Queried in plain language, with sources.</li>
+          <li>Wired to the live systems.</li>
+          <li>Read — and written — by humans and agents.</li>
+        </ul></div>
+      </div>
+    </div>
+    <aside class="notes">Markdown/knowledge as a live substrate, not a filing cabinet. The right-hand column is the design brief for the Vault. The key word is "continuously" — it's the compounding that makes it an asset.</aside>
+  </section>
+
+  <!-- 6 A DAY WITH THE VAULT -->
+  <section class="slide" data-scene="calm" data-act="1" data-title="A day with the Vault">
+    <div class="wrap">
+      <div class="kicker reveal">Made Concrete</div>
+      <h2 class="headline reveal">A day with the Vault.</h2>
+      <div class="cards">
+        <div class="card reveal"><div class="ct">Ask</div><div class="cd">An analyst asks one question that spans MT5, the CRM and our risk policy — and gets an answer, with sources.</div></div>
+        <div class="card reveal"><div class="ct">Drop</div><div class="cd">Someone drops a counterparty statement and an Excel; the Vault extracts, reconciles and flags — locally, for sensitive files.</div></div>
+        <div class="card reveal"><div class="ct">Steer</div><div class="cd">A junior builds an automation on their own resources; Vault agents keep it on-policy and on-context.</div></div>
+        <div class="card reveal"><div class="ct">Compound</div><div class="cd">The Vault writes back what it learned. Tomorrow, everyone starts from that.</div></div>
+      </div>
+    </div>
+    <aside class="notes">Four verbs to remember: Ask, Drop, Steer, Compound. These map exactly to Majd's requirements — everyday querying, file-drop analysis, automations on dedicated resources steered by the vault, and the compounding loop. This is the slide people will quote back.</aside>
+  </section>
+
+  <!-- 7 STEERING BALL -->
+  <section class="slide center" data-scene="core" data-act="1" data-title="The steering ball">
+    <div class="wrap">
+      <div class="kicker reveal">Why It's the Centre</div>
+      <h2 class="headline reveal">The <span class="grad">steering ball.</span></h2>
+      <p class="sub reveal">One source of context keeps ~100 people — and every agent — pointed the same way. The same facts, the same policies, the same memory, on tap. Decisions stop depending on who you happened to ask.</p>
+    </div>
+    <aside class="notes">"Steering ball" is Majd's phrase and it's perfect — the firm's living compass. The strategic point: alignment at scale. 100 people making decisions from one shared brain instead of 100 private versions of the truth.</aside>
+  </section>
+
+  <!-- 8 THE LOOP -->
+  <section class="slide" data-scene="core" data-act="2" data-title="The compounding loop">
+    <div class="wrap">
+      <div class="kicker reveal">How It Compounds</div>
+      <h2 class="headline reveal">A <span class="grad2">hill-climbing machine.</span></h2>
+      <ul class="points reveal">
+        <li><b>Query</b> — people and agents use the Vault for real work.</li>
+        <li><b>Trace</b> — every interaction and correction is captured as signal.</li>
+        <li><b>Evaluate</b> — private evals score it on outcomes that matter to VCG — not public benchmarks.</li>
+        <li><b>Improve</b> — the knowledge sharpens, and later the model does too. <span class="hl">Then it loops.</span></li>
+      </ul>
+      <div class="tag reveal"><span class="pulse"></span> Unlike most assets, the loop compounds — every use makes the next one better</div>
+    </div>
+    <aside class="notes">This is the engine. The non-obvious insight: the traces from real work are the training data nobody else has. That's why the advantage is hard to replicate — competitors can buy the same model but not our loop.</aside>
+  </section>
+
+  <!-- 9 LADDER TO SLM -->
+  <section class="slide" data-scene="calm" data-act="2" data-title="From layer to VCG's own model">
+    <div class="wrap">
+      <div class="kicker reveal">The Maturity Ladder</div>
+      <h2 class="headline reveal">From a knowledge layer<br>to <span class="grad">VCG's own model.</span></h2>
+      <div class="four">
+        <div class="pil reveal"><div class="pn">Now</div><div class="pd">A unified knowledge layer (RAG) over Obsidian + every system, via MCP. A local model for sensitive docs. <b>~80% of the value, fastest.</b></div></div>
+        <div class="pil reveal"><div class="pn">Next</div><div class="pd">Capture the traces. Private evals on the outcomes that matter to VCG.</div></div>
+        <div class="pil reveal"><div class="pn">Then</div><div class="pd">Fine-tune a <b>VCG SLM</b> — the “company veteran,” on our own hardware.</div></div>
+        <div class="pil reveal"><div class="pn">Later</div><div class="pd">Private reinforcement on real traces — the frontier step, optional.</div></div>
+      </div>
+      <p class="lead reveal" style="margin-top:26px">We do <b style="color:var(--accent2)">not</b> train a model on day one. The knowledge layer earns its keep first; the SLM is phase two.</p>
+    </div>
+    <aside class="notes">The honesty slide. It protects credibility: anyone technical knows you don't start by training a model. RAG-first is the disciplined path, and the SLM becomes worthwhile precisely because the loop has been feeding it good traces.</aside>
+  </section>
+
+  <!-- 10 SOVEREIGNTY -->
+  <section class="slide" data-scene="core" data-act="2" data-title="Model-sovereignty">
+    <div class="wrap">
+      <div class="kicker reveal">The Sovereignty Test</div>
+      <h2 class="headline reveal">Swap the model.<br>Keep the <span class="grad">veteran.</span></h2>
+      <p class="sub reveal">The real test of control: can we replace the underlying model — Claude today, our own SLM tomorrow, whatever's best next year — <b style="color:var(--ink)">without losing</b> the expertise the firm has accumulated?</p>
+      <ul class="points reveal">
+        <li>Our IP lives in the <b>Vault + traces + evals</b> — not in someone else's weights.</li>
+        <li>That's how VCG avoids being commoditised by the model layer.</li>
+      </ul>
+    </div>
+    <aside class="notes">This is the architectural principle that everything else serves. If we ever feel "locked in" to a model, we built it wrong. The knowledge and the loop must be portable across models — that's sovereignty, and it's the board's assurance that this spend isn't a bet on one vendor.</aside>
+  </section>
+
+  <!-- 11 ARCHITECTURE -->
+  <section class="slide" data-scene="arch" data-act="3" data-title="Architecture at a glance">
+    <div class="wrap">
+      <div class="kicker reveal">The Architecture</div>
+      <h2 class="headline reveal">One layer. Everything behind it.</h2>
+      <div class="arch reveal">
+        <div class="arch-row top"><span class="arch-tag">People &amp; Agents</span><span class="arch-sub">~100 users · their own agents and automations</span></div>
+        <div class="arch-flow">▼  one entry point  ▼</div>
+        <div class="arch-row accent"><span class="arch-tag">MCP Access Layer</span><span class="arch-sub">permission-aware · identity &amp; roles via Microsoft Entra ID</span></div>
+        <div class="arch-flow">▼</div>
+        <div class="arch-row brain"><span class="arch-tag">The Vault Brain</span><span class="arch-sub">knowledge index · retrieval · steering agents · trace + eval store</span></div>
+        <div class="arch-cols">
+          <div class="arch-box">Connectors<small>MT5 · CRM · Snowflake · Power BI · PSPs · Obsidian</small></div>
+          <div class="arch-box">File-drop pipeline<small>PDF · Excel · statements · images → parse · OCR/vision · embed</small></div>
+          <div class="arch-box">Dedicated automation compute<small>users' jobs run here — steered by the Vault</small></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">Walk it top-down. The one thing to land: there is a single, permission-aware door (the MCP layer) — not 100 integrations per user. Everything behind it is modular and swappable. Note the third box: users' automations run on their own compute, not on the brain.</aside>
+  </section>
+
+  <!-- 12 MCP LAYER -->
+  <section class="slide" data-scene="arch" data-act="3" data-title="One layer, connected to everything">
+    <div class="wrap">
+      <div class="kicker reveal">The Connective Tissue</div>
+      <h2 class="headline reveal">One layer, <span class="grad2">connected to everything.</span></h2>
+      <ul class="points reveal">
+        <li>MCP turns each system — MT5, CRM, Snowflake, Power BI, PSPs, Obsidian — into something the Vault can <b>read and reason over.</b></li>
+        <li>100 users hit <b>one</b> permission-aware brain — not a tangle of point-to-point integrations.</li>
+        <li>Add a new system once; <span class="hl">every user and agent gains it instantly.</span></li>
+      </ul>
+      <div class="tag reveal"><span class="pulse"></span> The "systems that don't talk" problem — solved at the layer, not per app</div>
+    </div>
+    <aside class="notes">This is the practical payoff of MCP from the master deck, now the backbone of the Vault. The leverage point: integration is done once, centrally, and inherited everywhere. That's what makes 100 users on one brain feasible.</aside>
+  </section>
+
+  <!-- 13 FILE-DROP -->
+  <section class="slide" data-scene="calm" data-act="3" data-title="The file-drop pipeline">
+    <div class="wrap">
+      <div class="kicker reveal">Drop Anything</div>
+      <h2 class="headline reveal">Drop a file. Get an answer.</h2>
+      <div class="cols">
+        <div class="col fut reveal"><h4>What goes in</h4><ul>
+          <li>PDFs &amp; contracts</li>
+          <li>Excel &amp; CSV</li>
+          <li>Bank &amp; counterparty statements</li>
+          <li>Images &amp; scans</li>
+        </ul></div>
+        <div class="col fut reveal"><h4>What happens</h4><ul>
+          <li>Parse + OCR/vision read the document.</li>
+          <li>Extract, reconcile, and flag the important bits.</li>
+          <li>Embed it into the brain — it's now searchable.</li>
+          <li>Sensitive files processed <b>locally</b>, never leaving the building.</li>
+        </ul></div>
+      </div>
+      <div class="tag reveal"><span class="pulse"></span> Sensitive documents route to the sovereign tier by default</div>
+    </div>
+    <aside class="notes">Directly answers Majd's file-drop requirement. The privacy routing is the key governance point: statements/KYC/contracts are analysed on the on-prem sovereign tier; non-sensitive can use the elastic cloud/Claude tier. The user just drops the file — the routing is automatic.</aside>
+  </section>
+
+  <!-- 14 OBSIDIAN SUBSTRATE -->
+  <section class="slide" data-scene="calm" data-act="3" data-title="The substrate — Obsidian">
+    <div class="wrap">
+      <div class="kicker reveal">The Substrate</div>
+      <h2 class="headline reveal">Markdown is the <span class="grad">shared memory.</span></h2>
+      <ul class="points reveal">
+        <li>A shared <b>Obsidian vault</b> is the human-facing surface — and the agents' writable memory. Same files, both audiences.</li>
+        <li>Humans curate; agents append what they learn. <span class="hl">Version-controlled, auditable, ours.</span></li>
+        <li>Plain markdown means <b>no lock-in</b> — the substrate outlives any tool or model.</li>
+      </ul>
+    </div>
+    <aside class="notes">Why Obsidian/markdown and not a proprietary KB: it's the LLM-native format, human-readable, git-versionable, and portable. The compounding happens here — this is the physical place "fed by all" lives. It also reinforces sovereignty: our knowledge is in open files we own.</aside>
+  </section>
+
+  <!-- 15 SEPARATION -->
+  <section class="slide" data-scene="calm" data-act="3" data-title="Vault steers; automations run apart">
+    <div class="wrap">
+      <div class="kicker reveal">The Separation That Matters</div>
+      <h2 class="headline reveal">The Vault <span class="grad">steers.</span><br>It doesn't run everyone's jobs.</h2>
+      <ul class="points reveal">
+        <li>Users build automations on their <b>own dedicated compute</b> — those workloads stay off the brain.</li>
+        <li>Vault agents <b>steer</b> them: supplying context, policy, and guardrails.</li>
+        <li>The brain stays fast and protected; automation load scales independently.</li>
+      </ul>
+      <div class="tag reveal"><span class="pulse"></span> Exactly your model: dedicated resources, steered by the Vault</div>
+    </div>
+    <aside class="notes">This is Majd's explicit design and it's architecturally smart — it decouples the knowledge/steering plane from the execution plane. The brain's job is context and governance; the heavy automation runs elsewhere. It's also how we keep the 100-user backbone responsive.</aside>
+  </section>
+
+  <!-- 16 INFRASTRUCTURE -->
+  <section class="slide" data-scene="arch" data-act="3" data-title="Infrastructure — hybrid">
+    <div class="wrap">
+      <div class="kicker reveal">The Infrastructure</div>
+      <h2 class="headline reveal">Sovereign — but not naïve.</h2>
+      <div class="four">
+        <div class="pil reveal"><div class="pn">Azure-private</div><div class="pd">GPU serving in our own tenant (UK South, private endpoints) — real concurrency for ~100 users, highly available.</div></div>
+        <div class="pil reveal"><div class="pn">Entra ID</div><div class="pd">Role-aware access control for the single layer — we already run it. The hardest piece, handed to us.</div></div>
+        <div class="pil reveal"><div class="pn">Claude API</div><div class="pd">The heavy-reasoning tier for non-sensitive work — tiered Haiku → Sonnet → Opus.</div></div>
+        <div class="pil reveal"><div class="pn">Sovereign enclave</div><div class="pd">A small on-prem box (Mac Studio / DGX-class) for data that can't leave + SLM fine-tuning.</div></div>
+      </div>
+      <p class="lead reveal" style="margin-top:24px">Why not one Mac Studio for everything? <b style="color:var(--ink)">Concurrency, serving stack, and reliability.</b> A desktop is a brilliant enclave — not the firm's 24/7 backbone.</p>
+    </div>
+    <aside class="notes">This is the resolved infra decision (Hybrid A). Be ready for the Mac Studio question — the honest answer is the bottom line: Apple Silicon has no batched-serving stack (no vLLM-class throughput), no ECC/redundancy/remote management, and the ecosystem is NVIDIA/Linux. So we use it as the sovereign enclave, with Azure-private as the concurrency backbone and Claude for heavy non-sensitive reasoning. Model-sovereignty means we can swap any layer without losing the Vault.</aside>
+  </section>
+
+  <!-- 17 SECURITY -->
+  <section class="slide" data-scene="calm" data-act="3" data-title="Security & access">
+    <div class="wrap">
+      <div class="kicker reveal">Security &amp; Access</div>
+      <h2 class="headline reveal">Trust, engineered in.</h2>
+      <ul class="points reveal">
+        <li><b>Closed-box:</b> the Vault reasons over VCG data + whitelisted sources — never the open web.</li>
+        <li><b>Role-aware by default:</b> not everyone queries KYC, payroll or finance — Entra enforces it at the door.</li>
+        <li><b>Human-in-the-loop on writes;</b> AI narrates and proposes — it never touches the numbers.</li>
+        <li><b>Fully audited:</b> every query and action is logged. <span class="hl">Sovereign by design.</span></li>
+      </ul>
+    </div>
+    <aside class="notes">Same governance posture as the rest of our AI, applied to the Vault. The role-segmentation point is the one a regulated board will probe hardest — emphasise that access control is built at the single MCP layer via Entra, not bolted on per system. This is the slide that makes "one brain for everything" safe.</aside>
+  </section>
+
+  <!-- 18 ROADMAP -->
+  <section class="slide" data-scene="calm" data-act="4" data-title="The roadmap">
+    <div class="wrap">
+      <div class="kicker reveal">The Path</div>
+      <h2 class="headline reveal">The roadmap.</h2>
+      <div class="timeline">
+        <div class="tl reveal"><div class="when">Now</div><ul>
+          <li>Stand up the knowledge layer (RAG)</li>
+          <li>MCP access layer + Entra roles</li>
+          <li>File-drop pipeline</li>
+          <li>Shared Obsidian vault</li>
+        </ul></div>
+        <div class="tl reveal"><div class="when">Next</div><ul>
+          <li>Connect every core system</li>
+          <li>Capture traces + private evals</li>
+          <li>Sovereign enclave online</li>
+          <li>Automation steering live</li>
+        </ul></div>
+        <div class="tl reveal"><div class="when">Then</div><ul>
+          <li>Fine-tune the VCG SLM</li>
+          <li>Local sensitive inference at scale</li>
+          <li>Deepen the compounding loop</li>
+        </ul></div>
+        <div class="tl reveal"><div class="when">2027</div><ul>
+          <li>The steering ball at full strength</li>
+          <li>Sovereign, compounding IP</li>
+          <li>Optional: private RL</li>
+        </ul></div>
+      </div>
+    </div>
+    <aside class="notes">Phasing mirrors the maturity ladder: knowledge layer and access first, traces and enclave next, the SLM after. Each phase is independently valuable — we get ROI from "Now" before committing to the SLM. The hardware decision sits at the "Next" boundary.</aside>
+  </section>
+
+  <!-- 19 WHAT IT MAKES VCG -->
+  <section class="slide center" data-scene="core" data-act="4" data-title="What it makes VCG">
+    <div class="wrap">
+      <div class="kicker reveal">The Outcome</div>
+      <h2 class="headline reveal">An asset that <span class="grad">appreciates.</span></h2>
+      <div class="four">
+        <div class="pil reveal" style="text-align:center"><div class="pn">Sovereign</div><div class="pd">our knowledge, our hardware, our control.</div></div>
+        <div class="pil reveal" style="text-align:center"><div class="pn">Compounding</div><div class="pd">sharper with every use — an asset, not a cost.</div></div>
+        <div class="pil reveal" style="text-align:center"><div class="pn">Amplifying</div><div class="pd">people made more valuable, not less.</div></div>
+        <div class="pil reveal" style="text-align:center"><div class="pn">Durable</div><div class="pd">knowledge that never walks out the door.</div></div>
+      </div>
+    </div>
+    <aside class="notes">Four words: Sovereign, Compounding, Amplifying, Durable. This directly answers the problem slide (§4). The framing for the board: this is the rare technology spend that becomes a balance-sheet asset rather than an expense.</aside>
+  </section>
+
+  <!-- 20 CLOSE -->
+  <section class="slide center" data-scene="hero" data-act="4" data-title="Close">
+    <div class="wrap">
+      <div class="kicker reveal">2027</div>
+      <h1 class="title reveal">The Vault <span class="grad">is the IP.</span></h1>
+      <p class="sub reveal">Everything else is a model you can swap. This is the asset we build, own, and compound — the nerve system the whole firm runs on.</p>
+      <p class="foot reveal">VCG Knowledge Vault · the steering ball</p>
+    </div>
+    <aside class="notes">Land it with conviction. The one sentence to leave in the room: "The Vault is the IP; everything else is a model you can swap." That's the whole strategy in nine words.</aside>
+  </section>
+
+</main>
+
+<div class="menu" id="menu">
+  <button class="menu-close" id="menuClose">×</button>
+  <h3>Sections</h3>
+  <div class="menu-grid" id="menuGrid"></div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/gsap.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var HAS_G = typeof window.gsap !== 'undefined';
+  var HAS_T = typeof window.THREE !== 'undefined';
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var idx = 0, busy = false;
+  var ACTS = {1:'The Vision', 2:'How It Compounds', 3:'The Architecture', 4:'The Path'};
+  var ROM = {1:'I',2:'II',3:'III',4:'IV'};
+  document.getElementById('ctot').textContent = slides.length;
+
+  var rail = document.getElementById('rail'), menuGrid = document.getElementById('menuGrid');
+  slides.forEach(function(s, i){
+    var b = document.createElement('button');
+    b.title = s.dataset.title || ('Slide '+(i+1));
+    b.addEventListener('click', function(){ go(i); });
+    rail.appendChild(b);
+    var m = document.createElement('button');
+    m.className = 'menu-item';
+    m.innerHTML = '<span class="mi">'+String(i+1).padStart(2,'0')+'</span>'+(s.dataset.title||'');
+    m.addEventListener('click', function(){ go(i); closeMenu(); });
+    menuGrid.appendChild(m);
+  });
+  var railBtns = Array.prototype.slice.call(rail.children);
+
+  function setReveals(slide, animate){
+    var els = slide.querySelectorAll('.reveal');
+    if(!HAS_G){ els.forEach(function(e){ e.style.opacity = 1; }); return; }
+    if(animate){ gsap.killTweensOf(els); gsap.fromTo(els, {opacity:0, y:26}, {opacity:1, y:0, duration:.85, stagger:.08, ease:'power3.out', delay:.12}); }
+    else { gsap.set(els, {opacity:0, y:26}); }
+  }
+  function countUp(slide){
+    var nums = slide.querySelectorAll('[data-count]');
+    nums.forEach(function(el){
+      var to = parseFloat(el.getAttribute('data-count')); var dec = parseInt(el.getAttribute('data-dec')||'0',10);
+      if(!HAS_G){ el.textContent = to.toFixed(dec); return; }
+      var obj = {v:0};
+      gsap.to(obj, {v:to, duration:1.5, ease:'power2.out', delay:.35, onUpdate:function(){ el.textContent = obj.v.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec}); }});
+    });
+  }
+
+  function go(n){
+    if(busy) return;
+    idx = Math.max(0, Math.min(slides.length-1, n));
+    busy = true; setTimeout(function(){ busy=false; }, 420);
+    slides.forEach(function(s,i){
+      s.classList.toggle('is-active', i===idx);
+      if(i!==idx) setReveals(s,false);
+    });
+    var cur = slides[idx];
+    setReveals(cur, true); countUp(cur);
+    railBtns.forEach(function(b,i){ b.classList.toggle('on', i===idx); });
+    document.getElementById('cnum').textContent = String(idx+1).padStart(2,'0');
+    document.getElementById('barfill').style.width = (idx/(slides.length-1)*100)+'%';
+    var act = cur.dataset.act || '1';
+    document.getElementById('actnum').textContent = ROM[act]||'I';
+    document.getElementById('actname').textContent = ACTS[act]||'';
+    document.getElementById('hint').style.opacity = (idx===0)?'0.9':'0';
+    var note = cur.querySelector('.notes'); notesText = note ? note.innerHTML : ''; renderNotes();
+    updateScene(cur);
+  }
+  function next(){ go(idx+1); } function prev(){ go(idx-1); }
+
+  var notesOn = false, notesText = '';
+  var notespanel = document.getElementById('notespanel');
+  function renderNotes(){ if(notesOn && notesText){ notespanel.classList.add('show'); notespanel.innerHTML = '<b>Speaker notes</b>'+notesText; } else { notespanel.classList.remove('show'); } }
+  document.getElementById('btnNotes').addEventListener('click', function(){ notesOn=!notesOn; renderNotes(); });
+
+  var menu = document.getElementById('menu');
+  function openMenu(){ menu.classList.add('open'); } function closeMenu(){ menu.classList.remove('open'); }
+  document.getElementById('btnMenu').addEventListener('click', function(){ menu.classList.contains('open')?closeMenu():openMenu(); });
+  document.getElementById('menuClose').addEventListener('click', closeMenu);
+
+  document.getElementById('btnNext').addEventListener('click', next);
+  document.getElementById('btnPrev').addEventListener('click', prev);
+  document.getElementById('btnFull').addEventListener('click', function(){ if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); } else { document.exitFullscreen&&document.exitFullscreen(); } });
+  window.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); next(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(slides.length-1); }
+    else if(e.key==='Escape'){ menu.classList.contains('open')?closeMenu():openMenu(); }
+    else if(e.key==='n'||e.key==='N'){ notesOn=!notesOn; renderNotes(); }
+    else if(e.key==='f'||e.key==='F'){ document.getElementById('btnFull').click(); }
+  });
+  var wlock=false;
+  window.addEventListener('wheel', function(e){ if(menu.classList.contains('open'))return; if(Math.abs(e.deltaY)<24||wlock)return; wlock=true; setTimeout(function(){wlock=false;},750); if(e.deltaY>0)next(); else prev(); }, {passive:true});
+  var tsx=0,tsy=0;
+  window.addEventListener('touchstart', function(e){ tsx=e.touches[0].clientX; tsy=e.touches[0].clientY; }, {passive:true});
+  window.addEventListener('touchend', function(e){ var dx=e.changedTouches[0].clientX-tsx, dy=e.changedTouches[0].clientY-tsy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); } else if(Math.abs(dy)>60){ dy<0?next():prev(); } }, {passive:true});
+
+  /* ===================== THREE.JS — NEURAL BRAIN CORE ===================== */
+  var scene, cam, rend, brain, brainCore, brainGlow, brainLines, sysNodes=[], streamPts, streamPos, streamT, streamNode, streamOff, sysPos=[], stars;
+  var SYS=9, OR=6.4, P=34, FN, NB=720;
+  var mouse={x:0,y:0}, camTarget={x:0,y:0,z:14.5}, camZ=14.5, brainBoost=0;
+
+  function glowTex(color){ var c=document.createElement('canvas'); c.width=c.height=128; var x=c.getContext('2d'); var g=x.createRadialGradient(64,64,0,64,64,64); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.25,color+',0.85)'); g.addColorStop(1,color+',0)'); x.fillStyle=g; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(c); }
+  function dotTex(){ var c=document.createElement('canvas'); c.width=c.height=64; var x=c.getContext('2d'); var g=x.createRadialGradient(32,32,0,32,32,32); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.4,'rgba(170,200,255,.85)'); g.addColorStop(1,'rgba(170,200,255,0)'); x.fillStyle=g; x.fillRect(0,0,64,64); return new THREE.CanvasTexture(c); }
+  function fib(n, r){ var pts=[], off=2/n, inc=Math.PI*(3-Math.sqrt(5)); for(var i=0;i<n;i++){ var y=i*off-1+off/2; var rr=Math.sqrt(Math.max(0,1-y*y)); var phi=i*inc; pts.push(new THREE.Vector3(Math.cos(phi)*rr*r, y*r, Math.sin(phi)*rr*r)); } return pts; }
+
+  function initScene(){
+    if(!HAS_T) return;
+    rend=new THREE.WebGLRenderer({canvas:document.getElementById('bg'), alpha:true, antialias:true});
+    rend.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); rend.setSize(window.innerWidth, window.innerHeight);
+    scene=new THREE.Scene();
+    cam=new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, .1, 200); cam.position.set(0,0,14.5);
+
+    // brain cloud
+    brain=new THREE.Group(); scene.add(brain);
+    var bp=fib(NB,1.7), arr=new Float32Array(NB*3);
+    for(var i=0;i<NB;i++){ arr[i*3]=bp[i].x; arr[i*3+1]=bp[i].y; arr[i*3+2]=bp[i].z; }
+    var bg=new THREE.BufferGeometry(); bg.setAttribute('position', new THREE.BufferAttribute(arr,3));
+    var bpts=new THREE.Points(bg, new THREE.PointsMaterial({size:.075, map:dotTex(), color:0xbcd4ff, transparent:true, opacity:.95, blending:THREE.AdditiveBlending, depthWrite:false}));
+    brain.add(bpts);
+    // neural lines (random near pairs)
+    var segs=[], tries=0;
+    while(segs.length<170 && tries<2000){ tries++; var a=bp[(Math.random()*NB)|0], b=bp[(Math.random()*NB)|0]; if(a!==b && a.distanceTo(b)<1.15){ segs.push(a.x,a.y,a.z,b.x,b.y,b.z); } }
+    var lg=new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(segs),3));
+    brainLines=new THREE.LineSegments(lg, new THREE.LineBasicMaterial({color:0x6ea8ff, transparent:true, opacity:.22})); brain.add(brainLines);
+    // core + glow
+    brainCore=new THREE.Mesh(new THREE.IcosahedronGeometry(1.0,1), new THREE.MeshBasicMaterial({color:0x9b8cff, wireframe:true, transparent:true, opacity:.85})); brain.add(brainCore);
+    brainGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(120,150,255'), color:0x6ea8ff, transparent:true, opacity:.7, blending:THREE.AdditiveBlending, depthWrite:false})); brainGlow.scale.set(6,6,1); brain.add(brainGlow);
+
+    // system nodes (surround the brain)
+    var sp=fib(SYS,OR); var gtex=glowTex('rgba(60,230,215');
+    for(var s=0;s<SYS;s++){ sysPos.push(sp[s]);
+      var mesh=new THREE.Mesh(new THREE.SphereGeometry(.13,18,18), new THREE.MeshBasicMaterial({color:0xbafff7})); mesh.position.copy(sp[s]); scene.add(mesh);
+      var spr=new THREE.Sprite(new THREE.SpriteMaterial({map:gtex, color:0x35e6d2, transparent:true, opacity:.8, blending:THREE.AdditiveBlending, depthWrite:false})); spr.scale.set(1.3,1.3,1); spr.position.copy(sp[s]); scene.add(spr);
+      sysNodes.push({mesh:mesh, glow:spr, base:sp[s].clone(), ph:Math.random()*6.28});
+    }
+
+    // streams flowing into the brain
+    FN=SYS*P; streamPos=new Float32Array(FN*3); streamT=new Float32Array(FN); streamNode=new Int16Array(FN); streamOff=new Float32Array(FN*3);
+    for(var f=0;f<FN;f++){ streamT[f]=Math.random(); streamNode[f]=(f/P)|0; streamOff[f*3]=(Math.random()-.5)*1.6; streamOff[f*3+1]=(Math.random()-.5)*1.6; streamOff[f*3+2]=(Math.random()-.5)*1.6; }
+    var stg=new THREE.BufferGeometry(); stg.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
+    streamPts=new THREE.Points(stg, new THREE.PointsMaterial({size:.085, map:dotTex(), color:0x6ff0e6, transparent:true, opacity:.9, blending:THREE.AdditiveBlending, depthWrite:false})); scene.add(streamPts);
+
+    // stars
+    var SN=1300, ssp=new Float32Array(SN*3);
+    for(var i2=0;i2<SN;i2++){ var rad=20+Math.random()*42, th=Math.random()*6.28, ph2=Math.acos(2*Math.random()-1); ssp[i2*3]=rad*Math.sin(ph2)*Math.cos(th); ssp[i2*3+1]=rad*Math.sin(ph2)*Math.sin(th)*.6; ssp[i2*3+2]=rad*Math.cos(ph2)-22; }
+    var sg=new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(ssp,3));
+    stars=new THREE.Points(sg, new THREE.PointsMaterial({size:.09, map:dotTex(), color:0x9fb2d6, transparent:true, opacity:.5, blending:THREE.AdditiveBlending, depthWrite:false})); scene.add(stars);
+
+    window.addEventListener('mousemove', function(e){ mouse.x=(e.clientX/window.innerWidth)*2-1; mouse.y=(e.clientY/window.innerHeight)*2-1; });
+    window.addEventListener('resize', onResize); animate();
+  }
+  function onResize(){ if(!rend)return; cam.aspect=window.innerWidth/window.innerHeight; cam.updateProjectionMatrix(); rend.setSize(window.innerWidth, window.innerHeight); }
+
+  var t=0;
+  function animate(){
+    requestAnimationFrame(animate); if(!rend) return; t+=0.0045;
+    brain.rotation.y += 0.0016; brainCore.rotation.y -= 0.004; brainCore.rotation.x += 0.002;
+    var pulse=1+Math.sin(t*2.0)*0.06 + brainBoost*0.18; brain.scale.setScalar(pulse);
+    brainGlow.material.opacity = 0.5 + 0.2*Math.sin(t*1.8) + brainBoost*0.25;
+    brainLines.material.opacity = 0.18 + 0.12*Math.sin(t*1.4) + brainBoost*0.12;
+
+    // streams flow node -> brain centre
+    for(var f=0;f<FN;f++){ streamT[f]+=0.0052 + (f%5)*0.0006; if(streamT[f]>1) streamT[f]-=1;
+      var e=streamT[f]*streamT[f]; var n=sysPos[streamNode[f]]; var k=1-e;
+      streamPos[f*3]   = n.x*k + streamOff[f*3]*k;
+      streamPos[f*3+1] = n.y*k + streamOff[f*3+1]*k;
+      streamPos[f*3+2] = n.z*k + streamOff[f*3+2]*k;
+    }
+    streamPts.geometry.attributes.position.needsUpdate=true;
+    streamPts.material.opacity = 0.55 + 0.4*Math.min(1,0.5+brainBoost);
+
+    for(var s=0;s<sysNodes.length;s++){ var nd=sysNodes[s]; var sc=1+Math.sin(t*2+nd.ph)*0.18; nd.glow.scale.set(1.3*sc,1.3*sc,1); }
+
+    stars.rotation.y += 0.0003;
+
+    camTarget.x += (mouse.x*1.2 - camTarget.x)*0.05; camTarget.y += (-mouse.y*0.8 - camTarget.y)*0.05; camTarget.z += (camZ - camTarget.z)*0.05;
+    cam.position.set(camTarget.x, camTarget.y, camTarget.z); cam.lookAt(0,0,0);
+    rend.render(scene, cam);
+  }
+
+  function updateScene(slide){
+    var mode=slide.dataset.scene||'calm'; var scrim=document.getElementById('scrim'); var sc=0.45;
+    if(mode==='hero'){ sc=0.12; camZ=14.5; brainBoost=0.5; }
+    else if(mode==='core'){ sc=0.4; camZ=12.8; brainBoost=1; }
+    else if(mode==='arch'){ sc=0.6; camZ=18; brainBoost=0.1; }
+    else { sc=0.64; camZ=16; brainBoost=0.05; }
+    if(HAS_G){ gsap.to(scrim,{opacity:sc,duration:.9,ease:'power2.out'}); } else { scrim.style.opacity=sc; }
+  }
+
+  if(HAS_T){ try{ initScene(); }catch(err){ console.warn('scene init failed', err); } }
+  slides[0].classList.add('is-active'); go(0);
+})();
+</script>
+</body>
+</html>

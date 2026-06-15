@@ -1,0 +1,7 @@
+vcg-ai-2027-site.zip
+*.ps1
+tasks/
+_*.js
+.DS_Store
+Thumbs.db
+desktop.ini
