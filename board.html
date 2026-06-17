@@ -254,9 +254,9 @@ h2.headline{font-family:var(--disp);font-weight:700;line-height:1.02;letter-spac
       <div class="chartbox">
         <svg class="chart reveal" id="chartAI" viewBox="0 0 760 380" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="csidelist">
-          <div class="csideitem reveal"><div class="cn">~<span data-count="70" data-dec="0">0</span><small>%</small></div><div class="cl">of US equity trading is already algorithmic.</div></div>
-          <div class="csideitem reveal"><div class="cn"><span data-count="36.6" data-dec="1">0</span><small>% CAGR</small></div><div class="cl">AI-in-trading market growth through 2030.</div></div>
-          <div class="csideitem reveal"><div class="cn">~<span data-count="90" data-dec="0">0</span><small>%</small></div><div class="cl">of unregulated prop firms expected to fail or merge — consolidation favours licensed brokers.</div></div>
+          <div class="csideitem reveal"><div class="cn">~<span data-count="70" data-dec="0">0</span><small>%</small></div><div class="cl">of US equity trading is already algorithmic.</div><div class="src">Industry estimate</div></div>
+          <div class="csideitem reveal"><div class="cn"><span data-count="36.6" data-dec="1">0</span><small>% CAGR</small></div><div class="cl">AI-in-trading market growth through 2030.</div><div class="src">Industry estimate</div></div>
+          <div class="csideitem reveal"><div class="cn">~<span data-count="90" data-dec="0">0</span><small>%</small></div><div class="cl">of unregulated prop firms expected to fail or merge — consolidation favours licensed brokers.</div><div class="src">Industry estimate</div></div>
         </div>
       </div>
       <ul class="points reveal" style="margin-top:26px">
@@ -272,10 +272,10 @@ h2.headline{font-family:var(--disp);font-weight:700;line-height:1.02;letter-spac
       <div class="kicker reveal">Where We Stand</div>
       <h2 class="headline reveal">We're not starting from zero.</h2>
       <div class="stats">
-        <div class="stat reveal"><div class="num"><span data-count="4">0</span></div><div class="lbl">AI features <b>live</b> inside our trading platform — Q&A, anomaly narration, rule-drafting, an ops copilot.</div></div>
-        <div class="stat reveal"><div class="num"><span data-count="792">0</span></div><div class="lbl">risk &amp; analytics measures already codified — <b>214 risk</b>, <b>75 fraud</b>.</div></div>
-        <div class="stat reveal"><div class="num"><span data-count="48">0</span></div><div class="lbl">AI agents shipped <b>tested</b> production features across 32 + 16-agent sprints.</div></div>
-        <div class="stat reveal"><div class="num"><span data-count="618">0</span><small>/618</small></div><div class="lbl">automated tests green at ship — AI built it, discipline verified it.</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="4">0</span></div><div class="lbl">AI features <b>live</b> inside our trading platform — Q&A, anomaly narration, rule-drafting, an ops copilot.</div><div class="src">TapeOps AI engine</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="792">0</span></div><div class="lbl">risk &amp; analytics measures already codified — <b>214 risk</b>, <b>75 fraud</b>.</div><div class="src">VCG 360 / Power BI</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="48">0</span></div><div class="lbl">AI agents shipped <b>tested</b> production features across 32 + 16-agent sprints.</div><div class="src">Apr 2026 sprints</div></div>
+        <div class="stat reveal"><div class="num"><span data-count="618">0</span><small>/618</small></div><div class="lbl">automated tests green at ship — AI built it, discipline verified it.</div><div class="src">Engine test suite</div></div>
       </div>
       <div class="tag reveal"><span class="pulse"></span> Production AI engine · agentic compliance running twice daily · a flow-driven hedging engine built &amp; tested</div>
     </div>
@@ -500,22 +500,7 @@ h2.headline{font-family:var(--disp);font-weight:700;line-height:1.02;letter-spac
     <aside class="notes">The honest maturity ladder. RAG-first delivers most of the value fast; the fine-tuned VCG SLM is phase two, once we have the traces and private evals. We do NOT "train an LLM" on day one. Hybrid: Mac Studio nerve-centre (index + local model + MCP server) for sovereignty, Claude API for heavy non-sensitive reasoning. Model-sovereignty throughout: swap the base model, keep the institutional knowledge.</aside>
   </section>
 
-  <!-- 15 EXTERNAL -->
-  <section class="slide" data-scene="calm" data-act="3" data-title="From capability to product">
-    <div class="wrap">
-      <div class="kicker reveal">External · Client Offerings</div>
-      <h2 class="headline reveal">What we run inside<br>becomes what we <span class="grad">sell outside.</span></h2>
-      <ul class="points reveal">
-        <li>VCG is <b>customer-zero</b> of an AI-native analytics &amp; coaching platform — built with our partner Sovra GmbH and proven on our own book first.</li>
-        <li>Institutional-grade analytics and <b>AI coaching</b>, packaged for retail traders.</li>
-        <li>A differentiation competitors can't copy quickly — because we live on it before we sell it.</li>
-      </ul>
-      <div class="tag reveal"><span class="pulse"></span> Internal proving ground → external product → new revenue</div>
-    </div>
-    <aside class="notes">Framing matters: the platform (TapeOps) is a Sovra GmbH product; VCG is its first and premium client and proving ground — not the owner. The strategic point for VCG: our internal AI investment de-risks and seeds a sellable product line.</aside>
-  </section>
-
-  <!-- 16 REVENUE -->
+  <!-- REVENUE -->
   <section class="slide" data-scene="calm" data-act="3" data-title="New revenue surfaces">
     <div class="wrap">
       <div class="kicker reveal">New Revenue</div>
@@ -523,9 +508,9 @@ h2.headline{font-family:var(--disp);font-weight:700;line-height:1.02;letter-spac
       <div class="chartbox">
         <svg class="chart reveal" id="chartProp" viewBox="0 0 760 380" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="csidelist">
-          <div class="csideitem reveal"><div class="cn">$<span data-count="24.6" data-dec="1">0</span><small>B</small></div><div class="cl">prop-trading market by 2035 (from $7.1B in 2026 · 10.9% CAGR) — an adjacency our back-office is 60–70% ready for.</div></div>
+          <div class="csideitem reveal"><div class="cn">$<span data-count="24.6" data-dec="1">0</span><small>B</small></div><div class="cl">prop-trading market by 2035 (from $7.1B in 2026 · 10.9% CAGR) — an adjacency our back-office is 60–70% ready for.</div><div class="src">Industry estimate</div></div>
           <div class="csideitem reveal"><div class="cn">Premium tiers</div><div class="cl">analytics &amp; AI coaching as paid client features.</div></div>
-          <div class="csideitem reveal"><div class="cn">A licensed moat</div><div class="cl">new entrants need 6+ months and ~$75K to even start.</div></div>
+          <div class="csideitem reveal"><div class="cn">A licensed moat</div><div class="cl">new entrants need 6+ months and ~$75K to even start.</div><div class="src">Industry estimate</div></div>
         </div>
       </div>
     </div>
